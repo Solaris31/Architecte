@@ -31,14 +31,13 @@ function creationGallerie(categorie=0) {
             <figcaption>${projets.title}</figcaption>`;
             parentDeLaGallerie.appendChild(projet);
         };
-        console.log("test1" + projetsFiltres);
-        return (projetsFiltres);
+
+        console.log(projetsFiltres);
     });
 };
 
 
-creationGallerie();
-
+projetsFiltres = creationGallerie();
 console.log("test2" + projetsFiltres);
 
 
