@@ -2,18 +2,19 @@ const siteGlobal = document.querySelector('body');
 const parentDesBoutons = document.querySelector('.conteneurBoutonFiltre');
 const zonePrincipale = document.getElementById('zonePrincipaleMain');
 
+let projetsFiltres = [];
 
-function vidangeGallerie() {
-    const parentDeLaGallerie = document.querySelector('div.gallery');
-    parentDeLaGallerie.innerHTML = "";
+
+
+function vidangeGalerie() {
+    const parentDeLaGalerie = document.querySelector('div.gallery');
+    parentDeLaGalerie.innerHTML = "";
 };
 
 
-let projetsFiltres = [];
-
-function creationGallerie(categorie=0) {
-    let url = 'http://localhost:5678/api/works';
-    fetch(url).then((reponse) => reponse.json()).then(function (data) {
+function creeGalerie(categorie=0) {
+    const url = 'http://localhost:5678/api/works';
+    fetch(url).then((reponse) => reponse.json()).then (function (data) {
 
         projetsFiltres = data.filter(function (projetsAFiltrer) {
             if (categorie === 0) {
@@ -22,23 +23,28 @@ function creationGallerie(categorie=0) {
                 return projetsAFiltrer.categoryId === categorie;
             }
         });
-
-        const parentDeLaGallerie = document.querySelector('div.gallery');
-        parentDeLaGallerie.innerHTML='';
-        for (projets of projetsFiltres) {
-            const projet = document.createElement('figure');
-            projet.innerHTML = `<img src="${projets.imageUrl}" crossorigin="anonymous" alt="${projets.title}">
-            <figcaption>${projets.title}</figcaption>`;
-            parentDeLaGallerie.appendChild(projet);
-        };
-
-        console.log(projetsFiltres);
+    return projetsFiltres;
     });
+return projetsFiltres;
 };
 
 
-projetsFiltres = creationGallerie();
-console.log("test2" + projetsFiltres);
+function afficheGalerie() {
+    const parentDeLaGalerie = document.querySelector('div.gallery');
+    parentDeLaGalerie.innerHTML='';
+    for (projets of projetsFiltres) {
+        const projet = document.createElement('figure');
+        projet.innerHTML = `<img src="${projets.imageUrl}" crossorigin="anonymous" alt="${projets.title}">
+        <figcaption>${projets.title}</figcaption>`;
+        parentDeLaGalerie.appendChild(projet);
+
+    }
+};
+
+
+vidangeGalerie();
+projetsFiltres = creeGalerie();
+afficheGalerie();
 
 
 
@@ -49,8 +55,9 @@ nomBouton.innerHTML = `<input type="radio" name="bouton" id="boutonFiltreObjets0
 parentDesBoutons.appendChild(nomBouton);
 
 nomBouton.addEventListener('click', () => {
-    vidangeGallerie();
-    creationGallerie();
+    vidangeGalerie();
+    creeGalerie();
+    afficheGalerie();
 });
 
 
@@ -69,14 +76,13 @@ fetch(url).then((reponse) => reponse.json()).then(function (data) {
 
 
         document.getElementById("boutonFiltreObjets" + valeursDeData.id).addEventListener('click', () => {
-            vidangeGallerie();
-            if      (boutonFiltreObjets1.checked) { creationGallerie(1) }
-            else if (boutonFiltreObjets2.checked) { creationGallerie(2) }
-            else if (boutonFiltreObjets3.checked) { creationGallerie(3) }
+            vidangeGalerie();
+            if      (boutonFiltreObjets1.checked) { projetsFiltres = creeGalerie(1) ; afficheGalerie(); console.log(projetsFiltres);}
+            else if (boutonFiltreObjets2.checked) { projetsFiltres = creeGalerie(2) ; afficheGalerie(); console.log(projetsFiltres);}
+            else if (boutonFiltreObjets3.checked) { projetsFiltres = creeGalerie(3) ; afficheGalerie(); console.log(projetsFiltres);}
         });
     };
 });
-
 
 // Creation formulaire de login de larchitecte ////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
@@ -245,7 +251,7 @@ document.getElementById("login").addEventListener("click", () => {
             introductionModifiee.setAttribute("class","introduction2");
 
 
-            // Reconstruction de la gallerie + titre
+            // Reconstruction de la Galerie + titre
             zonePrincipale.setAttribute("id", "zonePrincipale");
             const portfolio = document.createElement("section");
             portfolio.setAttribute("id", "portfolio");
@@ -257,11 +263,11 @@ document.getElementById("login").addEventListener("click", () => {
             <p id="projetsAModifier">modifier</p></a>`;
             zonePrincipale.appendChild(portfolio);
 
-            // Reconstruction de la zone de la gallerie
-            const nouvelleGallerie = document.createElement("div");
-            nouvelleGallerie.setAttribute("class","gallery");
-            zonePrincipale.appendChild(nouvelleGallerie);
-            creationGallerie();
+            // Reconstruction de la zone de la Galerie
+            const nouvelleGalerie = document.createElement("div");
+            nouvelleGalerie.setAttribute("class","gallery");
+            zonePrincipale.appendChild(nouvelleGalerie);
+            creeGalerie();
 
 
             // Reconstruction du formulaire de contact
@@ -314,20 +320,20 @@ document.getElementById("login").addEventListener("click", () => {
                     <div id="conteneurTitreGalerie">
                     <h3>Galerie photo</h3>
                     </div>
-                    <div id="conteneurGallerie">
+                    <div id="conteneurGalerie">
                     </div>
                     <div id="conteneurChoixSurGalerie">
                         <div id="ligneHorizontaleSeparation"></div>
                         <button id="boutonAjoutPhoto">Ajouter une photo</button>
-                        <p id="lienSuppressionGalerie">Supprimer la gallerie</p>
+                        <p id="lienSuppressionGalerie">Supprimer la Galerie</p>
                     </div>
                 </div>`;
                 siteGlobal.appendChild(modale);
 
 
 
-                // const gallerieMiniature = document.getElementById("conteneurGallerie");
-                // gallerieMiniature.innerHTML = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
+                // const GalerieMiniature = document.getElementById("conteneurGalerie");
+                // GalerieMiniature.innerHTML = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
 
 
                 document.querySelector(".fa-xmark").addEventListener("click", () =>{
