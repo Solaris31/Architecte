@@ -2,8 +2,6 @@ const siteGlobal = document.querySelector('body');
 const parentDesBoutons = document.querySelector('.conteneurBoutonFiltre');
 const zonePrincipale = document.getElementById('zonePrincipaleMain');
 
-let projetsFiltres = [];
-
 
 
 function vidangeGalerie() {
@@ -12,81 +10,101 @@ function vidangeGalerie() {
 };
 
 
-function creeGalerie(categorie=0) {
-    const url = 'http://localhost:5678/api/works';
-    fetch(url).then((reponse) => reponse.json()).then (function (data) {
+async function creeBoutons() {
+    // Creation du bouton "Tous" + event listener //////////
+    // /////////////////////////////////////////////////////
+    const bouton0=document.createElement("input");
+    bouton0.setAttribute("type","radio");
+    bouton0.setAttribute("name","bouton");
+    bouton0.setAttribute("class","boutonOrigine");
+    bouton0.setAttribute("value","0");
+    bouton0.setAttribute("id","boutonFiltreObjets0");
+    bouton0.setAttribute("checked","");
+    parentDesBoutons.appendChild(bouton0);
 
-        projetsFiltres = data.filter(function (projetsAFiltrer) {
-            if (categorie === 0) {
-                return true;
-            } else {
-                return projetsAFiltrer.categoryId === categorie;
-            }
-        });
-    return projetsFiltres;
+    const label0=document.createElement("label");
+    label0.setAttribute("for","boutonFiltreObjets0");
+    label0.setAttribute("class","btn bouton0");
+    label0.textContent="Tous";
+    parentDesBoutons.appendChild(label0);
+
+    document.querySelector(".bouton0").addEventListener('click', () => {
+       creeGalerie();
     });
-return projetsFiltres;
+
+
+    // Creation des boutons "Objets", "Appartements", "Hotels et restaurants" + event listener ///////////////
+    // ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    const url = 'http://localhost:5678/api/categories';
+    const reponse = await fetch(url);
+    const data = await reponse.json();
+
+
+    for (valeursDeData of data) {
+        const boutonX=document.createElement("input");
+        boutonX.setAttribute("type","radio");
+        boutonX.setAttribute("name","bouton");
+        boutonX.setAttribute("class","bouton");
+        boutonX.setAttribute("value",`${valeursDeData.id}`);
+        boutonX.setAttribute("id",`boutonFiltreObjets${valeursDeData.id}`);
+        parentDesBoutons.appendChild(boutonX);
+
+        const labelX=document.createElement("label");
+        labelX.setAttribute("for", `boutonFiltreObjets${valeursDeData.id}`);
+        labelX.setAttribute("class", `btn bouton${valeursDeData.id}`);
+        labelX.textContent=`${valeursDeData.name}`;
+        parentDesBoutons.appendChild(labelX);
+    };
+    
+    document.querySelectorAll(".bouton").forEach(bouton => {
+        bouton.addEventListener('click', () => {
+            if (bouton.checked) {creeGalerie(bouton.value);}
+        });
+    });
 };
 
 
-function afficheGalerie() {
-    const parentDeLaGalerie = document.querySelector('div.gallery');
-    parentDeLaGalerie.innerHTML='';
+function creeGalerie(categorie=0) {
+    vidangeGalerie();
+
+    fetch("http://localhost:5678/api/works")
+        .then(reponse => reponse.json())
+        .then(data => {
+            if (categorie === 0){
+                projetsFiltres = data;
+            }
+            else {
+                projetsFiltres = data.filter(projets => `${projets.categoryId}` == categorie);
+            }
+        afficheGalerie(projetsFiltres);
+    });
+};
+
+
+function afficheGalerie (projetsFiltres){
+
+    const parentDeLaGallerie = document.querySelector('div.gallery');
+    parentDeLaGallerie.innerHTML='';
     for (projets of projetsFiltres) {
         const projet = document.createElement('figure');
         projet.innerHTML = `<img src="${projets.imageUrl}" crossorigin="anonymous" alt="${projets.title}">
         <figcaption>${projets.title}</figcaption>`;
-        parentDeLaGalerie.appendChild(projet);
-
-    }
+        parentDeLaGallerie.appendChild(projet);
+    };
 };
 
 
-vidangeGalerie();
-projetsFiltres = creeGalerie();
-afficheGalerie();
+creeBoutons();
+creeGalerie();
 
 
 
-// Creation du bouton "Tous" + event listener sur ce bouton //////////////////////////////////////////////////////////////////////////////
-const nomBouton = document.createElement('button');
-nomBouton.setAttribute("id","btn0");
-nomBouton.innerHTML = `<input type="radio" name="bouton" id="boutonFiltreObjets0" checked><label for="boutonFiltreObjets0" class="filtres bouton0">Tous</label>`;
-parentDesBoutons.appendChild(nomBouton);
-
-nomBouton.addEventListener('click', () => {
-    vidangeGalerie();
-    creeGalerie();
-    afficheGalerie();
-});
 
 
 
-// Creation des boutons "Objets", "Appartements", "Hotels et restaurants" + event listener sur ces 3 boutons /////////////////////////////
-let url = 'http://localhost:5678/api/categories';
-fetch(url).then((reponse) => reponse.json()).then(function (data) {
-    for (valeursDeData of data) {
-        const nomBouton = document.createElement('button');
-
-        nomBouton.setAttribute("id",`btn${valeursDeData.id}`);
-        nomBouton.innerHTML =
-        `<input type="radio" name="bouton" id="boutonFiltreObjets${valeursDeData.id}">
-        <label for="boutonFiltreObjets${valeursDeData.id}" class="filtres bouton${valeursDeData.id}">${valeursDeData.name}</label>`;
-        parentDesBoutons.appendChild(nomBouton);
-
-
-        document.getElementById("boutonFiltreObjets" + valeursDeData.id).addEventListener('click', () => {
-            vidangeGalerie();
-            if      (boutonFiltreObjets1.checked) { projetsFiltres = creeGalerie(1) ; afficheGalerie(); console.log(projetsFiltres);}
-            else if (boutonFiltreObjets2.checked) { projetsFiltres = creeGalerie(2) ; afficheGalerie(); console.log(projetsFiltres);}
-            else if (boutonFiltreObjets3.checked) { projetsFiltres = creeGalerie(3) ; afficheGalerie(); console.log(projetsFiltres);}
-        });
-    };
-});
 
 // Creation formulaire de login de larchitecte ////////////////////////////
 // ////////////////////////////////////////////////////////////////////////
-// Declenchement du formulaire de login de larchitecte au click de "login"
 document.getElementById("login").addEventListener("click", () => {
 
     // Modification du style du lien "login"
