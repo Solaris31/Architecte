@@ -483,8 +483,10 @@ footer nav ul {
 }
 #conteneurCroix{
 	display: flex;
+	width: 590px;
 	justify-content: end;
-	padding: 32px 35px 16px 0;
+	padding: 36px 0 16px 0;
+	margin-right:36px;
 }
 h3{
 	font-family: 'Work Sans';
@@ -495,7 +497,7 @@ h3{
 	text-align: center;
 }
 #conteneurTitreGalerie{
-	padding-bottom: 52px;
+	padding-bottom: 46px;
 }
 #boutonAjoutPhoto{
 	width: 237px;
@@ -515,6 +517,7 @@ h3{
 	line-height: 17px;
 	text-align: center;
 	color: #D65353;
+	margin: 23px 0 48px 0;
 }
 #ligneHorizontaleSeparation{
 	width: 420px;
@@ -532,12 +535,8 @@ h3{
 	background: black;
 	border-radius: 4px;
 }
-
 #ligneHorizontaleSeparation{
-	margin: 47px 0 38px 0;
-}
-#lienSuppressionGalerie{
-	margin: 23px 0 48px 0;
+	margin: 39px 0 38px 0;
 }
 #boutonAjoutPhoto:hover, #lienSuppressionGalerie:hover{
 	cursor:pointer;
@@ -555,6 +554,9 @@ h3{
 	align-items: center;
 }
 .modalWrapper{
+	display: flex;
+	flex-direction:column;
+	align-items: center;
 	background-color: #FFFFFF;
 	width: 630px;
 	height: 731px;
@@ -580,4 +582,64 @@ h3{
 	position : absolute;
 	bottom: 7px;
 	left:4.3px;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+}
+#conteneurMiniGalerie{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	width: 420px;
+}
+#miniGalerie{
+	margin: 0 auto;
+}
+#miniPhoto{
+	width: 78px;
+	height: 104px;
+	margin-bottom: 1px;
+}
+.textPhoto{
+	margin-bottom: 8px;
+}
+.cubeNoirPoubelle{
+	top:4px;
+	left: 57px;
+	width: 17px;
+	height: 17px;
+	background-color: rgba(0, 0, 0, 1);
+	border-radius: 2px;
+}
+.miniFigure{
+	position:relative;
+}
+.fa-trash-can, .cubeNoirPoubelle{
+	position: absolute;
+}
+.fa-trash-can{
+	left:62px;
+	top:13px;
+	width: 9px;
+	height: 9px;
+}
+.cubeNoirCroix{
+	z-index:1;
+	top:4px;
+	left: 35px;
+	width: 17px;
+	height: 17px;
+	background-color: rgba(0, 0, 0, 1);
+	border-radius: 2px;
+}
+.fa-up-down-left-right{
+	top:13px;
+	left: 39px;
+	z-index:1;
+	width: 9px;
+	height: 9px;
+}
+.cubeNoirCroix, .fa-up-down-left-right{
+	position: absolute;
+}
+.textPhoto{
+	cursor: pointer;
 }
