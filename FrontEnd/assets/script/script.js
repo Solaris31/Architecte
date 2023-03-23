@@ -64,24 +64,29 @@ async function creeBoutons() {
 };
 
 
-function creeGalerie(categorie=0) {
+async function creeGalerie(categorie=0) {
     vidangeGalerie();
 
-    fetch("http://localhost:5678/api/works")
+    await fetch("http://localhost:5678/api/works")
         .then(reponse => reponse.json())
         .then(data => {
-            if (categorie === 0){
+            if (categorie == -1) {
                 projetsFiltres = data;
+                return projetsFiltres;
+            }
+            else if (categorie == 0){
+                projetsFiltres = data;
+                afficheGalerie(projetsFiltres);
             }
             else {
                 projetsFiltres = data.filter(projets => `${projets.categoryId}` == categorie);
+                afficheGalerie(projetsFiltres);
             }
-        afficheGalerie(projetsFiltres);
-    });
+        });
 };
 
 
-function afficheGalerie (projetsFiltres){
+function afficheGalerie(projetsFiltres){
 
     const parentDeLaGallerie = document.querySelector('div.gallery');
     parentDeLaGallerie.innerHTML='';
@@ -94,9 +99,74 @@ function afficheGalerie (projetsFiltres){
 };
 
 
+function afficheMiniGalerie(projetsFiltres){
+    const conteneurMiniGalerie = document.getElementById("conteneurMiniGalerie");
+
+    const cubeNoirCroix=document.createElement("div");
+    cubeNoirCroix.setAttribute("class","cubeNoirCroix");
+    const iconeCroix=document.createElement("i");
+    iconeCroix.classList.add("fa-solid","fa-up-down-left-right","fa-2xs");
+
+
+    for (projets of projetsFiltres){
+        const figure=document.createElement("figure");
+        figure.setAttribute("id",`figure${projets.id}`);
+        figure.setAttribute("class","miniFigure");
+        
+        const photoMiniature=document.createElement("img");
+        photoMiniature.setAttribute("src",`${projets.imageUrl}`);
+        photoMiniature.setAttribute("id","miniPhoto");
+        photoMiniature.setAttribute("class",`miniPhoto${projets.id}`);
+        photoMiniature.setAttribute("crossorigin","anonymous");
+        photoMiniature.setAttribute("value",`${projets.id}`);
+        photoMiniature.setAttribute("alt",`${projets.title}`);
+        
+        const cubeNoirPoubelle=document.createElement("div");
+        cubeNoirPoubelle.setAttribute("id",`cubeNoirPoubelle${projets.id}`);
+        cubeNoirPoubelle.setAttribute("class","cubeNoirPoubelle");
+
+        const iconePoubelle=document.createElement("i");
+        iconePoubelle.classList.add("fa-regular", "fa-trash-can", "fa-2xs");
+        iconePoubelle.setAttribute("id",`poubelleNumero${projets.id}`)
+
+        const titre=document.createElement("figcaption");
+        titre.setAttribute("class","textPhoto");
+        titre.setAttribute("id",`photoNumero${projets.id}`);
+        titre.textContent="éditer";
+
+        conteneurMiniGalerie.appendChild(figure);
+        figure.appendChild(photoMiniature);
+        figure.appendChild(cubeNoirPoubelle);
+        figure.appendChild(iconePoubelle);
+        figure.appendChild(titre);
+    }
+
+
+    for (let i=1 ; i<=projetsFiltres.length ; i++ ) {
+        const focusFigure = document.getElementById("figure"+i)
+        focusFigure.addEventListener("mouseover", () => {
+            focusFigure.appendChild(cubeNoirCroix);
+            focusFigure.appendChild(iconeCroix);
+
+            console.log("in"+i);
+        });
+    };
+
+
+    for (let i=1 ; i<=projetsFiltres.length ; i++ ) {
+        const focusFigure = document.getElementById("figure"+i)
+        focusFigure.addEventListener("mouseout", () => {
+            focusFigure.removeChild(cubeNoirCroix);
+            focusFigure.removeChild(iconeCroix);
+
+            console.log("in"+i);
+        });
+    };
+};
+
+
 creeBoutons();
 creeGalerie();
-
 
 
 
@@ -107,34 +177,28 @@ creeGalerie();
 // ////////////////////////////////////////////////////////////////////////
 document.getElementById("login").addEventListener("click", () => {
 
-    // Modification du style du lien "login"
+
     const lienLogin = document.getElementById('login');
     lienLogin.setAttribute('class', 'nouveauStyleLogin');
 
-    // Creation dune nouvelle zone de saisie
     zonePrincipale.setAttribute('id', 'nouvelleZonePrincipale');
     zonePrincipale.innerHTML = "";
 
-    // Creation dune balise H2
     const titreLogin = document.createElement('h2');
     titreLogin.setAttribute('id', 'titreLoginH2');
 
-    // Reconstitution de la balise label Email
     const labelEmail = document.createElement('label');
     labelEmail.setAttribute('for', 'email');
     labelEmail.setAttribute('id', 'texteEmailLogIn');
 
-    // Reconstitution de la balise input Email
     const inputEmail = document.createElement('input');
     inputEmail.setAttribute('type', 'email');
     inputEmail.setAttribute('id', 'inputMail');
 
-    // Reconstitution de la balise label mot de passe
     const labelMotDePasse = document.createElement('label');
     labelMotDePasse.setAttribute('for', 'password');
     labelMotDePasse.setAttribute('id', 'texteMotDePasseLogIn');
 
-    // Reconstitution de la balise input Mot de passe
     const inputMotDePasse = document.createElement('input');
     inputMotDePasse.setAttribute('type', 'password');
     inputMotDePasse.setAttribute('id', 'inputMotDePasseLogIn');
@@ -144,20 +208,16 @@ document.getElementById("login").addEventListener("click", () => {
     labelMotDePasse.innerHTML = `Mot de passe</label>`;
     inputMotDePasse.innerHTML = `</input>`;
 
-
-    // Reconstitution du bouton pour se connecter
     const boutonSeConnecter = document.createElement('input');
     boutonSeConnecter.setAttribute('type', 'button');
     boutonSeConnecter.setAttribute('id', 'boutonSeConnecterLogIn');
     boutonSeConnecter.setAttribute('value', 'Se connecter');
     boutonSeConnecter.innerHTML = `</input>`;
 
-    // Reconstitution du lien pour recuperer son mot de passe
     const motDePasseOublie = document.createElement('a');
     motDePasseOublie.setAttribute('href', '#');
     motDePasseOublie.setAttribute('id', 'motDePasseOublie');
     motDePasseOublie.innerHTML = `Mot de passe oublié</a>`
-
 
     nouvelleZonePrincipale.appendChild(titreLogin);
     nouvelleZonePrincipale.appendChild(labelEmail);
@@ -285,6 +345,7 @@ document.getElementById("login").addEventListener("click", () => {
             const nouvelleGalerie = document.createElement("div");
             nouvelleGalerie.setAttribute("class","gallery");
             zonePrincipale.appendChild(nouvelleGalerie);
+
             creeGalerie();
 
 
@@ -329,7 +390,6 @@ document.getElementById("login").addEventListener("click", () => {
                 const modale = document.createElement("aside");
                 modale.setAttribute("id","modale1");
                 modale.setAttribute("class", "modale");
-                // modale.setAttribute("style","display:none");
                 modale.innerHTML = 
                 `<div class="modalWrapper">
                     <div id="conteneurCroix">
@@ -338,7 +398,7 @@ document.getElementById("login").addEventListener("click", () => {
                     <div id="conteneurTitreGalerie">
                     <h3>Galerie photo</h3>
                     </div>
-                    <div id="conteneurGalerie">
+                    <div id="conteneurMiniGalerie">
                     </div>
                     <div id="conteneurChoixSurGalerie">
                         <div id="ligneHorizontaleSeparation"></div>
@@ -349,9 +409,9 @@ document.getElementById("login").addEventListener("click", () => {
                 siteGlobal.appendChild(modale);
 
 
-
-                // const GalerieMiniature = document.getElementById("conteneurGalerie");
-                // GalerieMiniature.innerHTML = XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX;
+                //  Creation de la mini galerie dans la modale
+                creeGalerie(-1).then(projetsFiltres);
+                afficheMiniGalerie(projetsFiltres);
 
 
                 document.querySelector(".fa-xmark").addEventListener("click", () =>{
@@ -369,18 +429,3 @@ document.getElementById("login").addEventListener("click", () => {
         });
     });
 });
-
-
-
-    // <figure id="conteneurImage">
-    // <img src="" label="" alt="">
-    // <div id="blocNoirEtCroix">
-    //     <div id="cubeNoir"></div>
-    //     <i class="fa-solid fa-up-down-left-right fa-2xs"></i>
-    // </div>
-    // <div id="blocNoirEtPoubelle">
-    //     <div id="cubeNoir"></div>
-    //     <i class="fa-regular fa-trash-can fa-2xs"></i>
-    // </div>
-    // <figcaption>éditer</figcaption>
-    // </figure>
