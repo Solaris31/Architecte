@@ -319,8 +319,9 @@ footer nav ul {
 
 
 #inputMail, #inputMotDePasseLogIn{
+	background: #FFFFFF;
 	height: 51px;
-	box-shadow: 3px 4px 4px 3px rgba(0, 0, 0, 0.08);
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 	border: none;
 	outline: none;
 }
@@ -476,7 +477,8 @@ footer nav ul {
 	flex-direction: row;
 }
 
-/* Modale*************************************************** */
+/* Modale page1 *********************************************** */
+
 .modale{
 	background: #FFFFFF;
 	border-radius: 10px;
@@ -564,7 +566,7 @@ h3{
 	border-radius: 10px;
 	overflow-y: auto;
 }
-.fa-xmark:hover{
+.fa-xmark:hover, .fa-arrow-left{
 	cursor:pointer;
 }
 .fa-xmark{
@@ -588,10 +590,8 @@ h3{
 	flex-direction: row;
 	flex-wrap: wrap;
 	justify-content: space-between;
-	width: 420px;
-}
-#miniGalerie{
 	margin: 0 auto;
+	width: 420px;
 }
 #miniPhoto{
 	width: 78px;
@@ -642,4 +642,138 @@ h3{
 }
 .textPhoto{
 	cursor: pointer;
+}
+
+/* Modale page2 *********************************************** */
+
+.conteneurActionsDuWrapeurPage2{
+	margin: 26px auto 10px;
+	width: 552px;
+	height: 14px;
+}
+#nav{
+	display: flex;
+	justify-content: space-between;
+}
+.fa-arrow-left{
+	transform: scaleX(1.5);
+}
+#titreAjoutPhoto{
+	margin: 10px auto 45px;
+}
+#blocBleu{
+	width: 420px;
+	height: 169px;
+	background-color: rgba(232, 241, 246, 1);
+	margin: 0 auto;
+	border-radius: 3px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 30px;
+}
+.fa-image{
+	height: 46px;
+	color:rgba(185, 197, 204, 1);
+	margin: 28px auto 21px;
+	font-size: 4.14em;
+	transform:scaleX(1.2);
+}
+#boutonSelectionPhoto{
+	width: 173px;
+	height: 36px;
+	background-color: rgba(203, 214, 220, 1);
+	border-radius: 50px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 7px;
+	cursor: pointer;
+}
+#boutonSelectionPhoto::after{
+	content: "+ Ajouter photo";
+	height: 16px;
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 16px;
+	text-align: center;
+	color: #306685;
+}
+#texteBoutonSelectionPhoto{
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 10px;
+	line-height: 12px;
+	text-align: center;
+	color: #444444;
+	width: auto;
+	height: 12px;
+	margin-bottom: 19px;
+}
+#texteTitre, #texteCategorie{
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 500;
+	font-size: 14px;
+	line-height: 16px;
+	color: #3D3D3D;
+	margin-bottom: 10px;
+}
+#blocAjoutDeProjet{
+	width: 420px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+}
+#saisieTitre, #selectionCategorie{
+	height: 51px;
+	border: none;
+	background: #FFFFFF;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+	margin-bottom: 20px;
+}
+#ligneHorizontaleSeparation2{
+	width: 420px;
+	height: 0px;
+	border: 1px solid #B3B3B3;
+	margin: 24px auto 31px;
+}
+#boutonValidation{
+	width: 237px;
+	height: 36px;
+	left: 600px;
+	top: 1239px;
+	background: #A7A7A7;
+	border-radius: 60px;
+	margin: 0 auto 55px;
+}
+#boutonValidation::after{
+	height: 36px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	content: "valider";
+	font-family: 'Syne';
+	font-style: normal;
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 17px;
+	color: #FFFFFF;
+}
+.modale2Wrappeur{
+	display: flex;
+	flex-direction:column;
+	align-items: center;
+	background-color: #FFFFFF;
+	width: 630px;
+	height: 670px;
+	margin: auto;
+	border-radius: 10px;
+	overflow-y: auto;
+}
+#fichierAEnvoyer{
+	display: none;
 }
