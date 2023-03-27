@@ -10,7 +10,7 @@ function vidangeGalerie() {
 };
 
 
-async function creeBoutons() {
+async function creeBoutonsPagePrincipale() {
     // Creation du bouton "Tous" + event listener //////////
     // /////////////////////////////////////////////////////
     const bouton0=document.createElement("input");
@@ -29,7 +29,7 @@ async function creeBoutons() {
     parentDesBoutons.appendChild(label0);
 
     document.querySelector(".bouton0").addEventListener('click', () => {
-       creeGalerie();
+       creeGaleriePagePrincipale();
     });
 
 
@@ -58,13 +58,13 @@ async function creeBoutons() {
     
     document.querySelectorAll(".bouton").forEach(bouton => {
         bouton.addEventListener('click', () => {
-            if (bouton.checked) {creeGalerie(bouton.value);}
+            if (bouton.checked) {creeGaleriePagePrincipale(bouton.value);}
         });
     });
 };
 
 
-async function creeGalerie(categorie=0) {
+async function creeGaleriePagePrincipale(categorie=0) {
     vidangeGalerie();
 
     await fetch("http://localhost:5678/api/works")
@@ -76,17 +76,17 @@ async function creeGalerie(categorie=0) {
             }
             else if (categorie == 0){
                 projetsFiltres = data;
-                afficheGalerie(projetsFiltres);
+                afficheGaleriePagePrincipale(projetsFiltres);
             }
             else {
                 projetsFiltres = data.filter(projets => `${projets.categoryId}` == categorie);
-                afficheGalerie(projetsFiltres);
+                afficheGaleriePagePrincipale(projetsFiltres);
             }
         });
 };
 
 
-function afficheGalerie(projetsFiltres){
+function afficheGaleriePagePrincipale(projetsFiltres){
 
     const parentDeLaGallerie = document.querySelector('div.gallery');
     parentDeLaGallerie.innerHTML='';
@@ -99,7 +99,53 @@ function afficheGalerie(projetsFiltres){
 };
 
 
-function afficheMiniGalerie(projetsFiltres){
+function creeWrappeurPage1(){
+    const modale = document.createElement("aside");
+    modale.setAttribute("id","modale1");
+    modale.setAttribute("class", "modale");
+    modale.innerHTML = 
+    `<div class="modalWrapper">
+        <div id="conteneurActionsDuWrapeur">
+            <div id="conteneurCroix">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+            <div id="conteneurTitreGalerie">
+                <h3>Galerie photo</h3>
+            </div>
+            <div id="conteneurMiniGalerie"></div>
+            <div id="conteneurChoixSurGalerie">
+                <div id="ligneHorizontaleSeparation"></div>
+                <button id="boutonAjoutPhoto">Ajouter une photo</button>
+                <p id="lienSuppressionGalerie">Supprimer la Galerie</p>
+            </div>
+        </div>
+    </div>`;
+    siteGlobal.appendChild(modale);
+
+    
+    //  Creation de la mini galerie dans la modale page1
+    creeGaleriePagePrincipale(-1).then(projetsFiltres);
+    afficheMiniGalerieWrappeurPage1(projetsFiltres);
+
+    // Fermeture modale par bouton croix ou en cliquant a lexterieur du wrapeur
+
+    document.querySelector(".fa-xmark").addEventListener("click", () =>{
+        // modale.setAttribute("style","display:none");
+        modale.remove();
+        creeGaleriePagePrincipale();
+
+    });
+    window.addEventListener("click", (e) => {
+        if (e.target === modale) {
+            // modale.setAttribute("style","display:none");
+            modale.remove();
+            creeGaleriePagePrincipale();
+        } 
+    });
+};
+
+
+function afficheMiniGalerieWrappeurPage1(projetsFiltres){
     const conteneurMiniGalerie = document.getElementById("conteneurMiniGalerie");
 
     const cubeNoirCroix=document.createElement("div");
@@ -147,8 +193,6 @@ function afficheMiniGalerie(projetsFiltres){
         focusFigure.addEventListener("mouseover", () => {
             focusFigure.appendChild(cubeNoirCroix);
             focusFigure.appendChild(iconeCroix);
-
-            console.log("in"+i);
         });
     };
 
@@ -158,18 +202,13 @@ function afficheMiniGalerie(projetsFiltres){
         focusFigure.addEventListener("mouseout", () => {
             focusFigure.removeChild(cubeNoirCroix);
             focusFigure.removeChild(iconeCroix);
-
-            console.log("in"+i);
         });
     };
 };
 
 
-creeBoutons();
-creeGalerie();
-
-
-
+creeBoutonsPagePrincipale();
+creeGaleriePagePrincipale();
 
 
 
@@ -346,7 +385,7 @@ document.getElementById("login").addEventListener("click", () => {
             nouvelleGalerie.setAttribute("class","gallery");
             zonePrincipale.appendChild(nouvelleGalerie);
 
-            creeGalerie();
+            creeGaleriePagePrincipale();
 
 
             // Reconstruction du formulaire de contact
@@ -378,54 +417,161 @@ document.getElementById("login").addEventListener("click", () => {
                     </ul>
                 </nav>
             </footer>`;
-
             siteGlobal.appendChild(piedDePage);
 
 
-
-            //////////////////////////////////////////////////////////////////////////////////////////////////////
-            // Creation de la modale /////////////////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////////////////////////////////
+            
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Creation de la modale page 1 ////////////////////////////////////////////////////////////////////
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
             document.getElementById("projetsAModifier").addEventListener('click' , () => {
-                const modale = document.createElement("aside");
-                modale.setAttribute("id","modale1");
-                modale.setAttribute("class", "modale");
-                modale.innerHTML = 
-                `<div class="modalWrapper">
-                    <div id="conteneurCroix">
-                        <i class="fa-solid fa-xmark"></i>
-                    </div>
-                    <div id="conteneurTitreGalerie">
-                    <h3>Galerie photo</h3>
-                    </div>
-                    <div id="conteneurMiniGalerie">
-                    </div>
-                    <div id="conteneurChoixSurGalerie">
-                        <div id="ligneHorizontaleSeparation"></div>
-                        <button id="boutonAjoutPhoto">Ajouter une photo</button>
-                        <p id="lienSuppressionGalerie">Supprimer la Galerie</p>
-                    </div>
-                </div>`;
-                siteGlobal.appendChild(modale);
+                creeWrappeurPage1();
 
 
-                //  Creation de la mini galerie dans la modale
-                creeGalerie(-1).then(projetsFiltres);
-                afficheMiniGalerie(projetsFiltres);
+                ////////////////////////////////////////////////////////////////////////////////////////////////////
+                // Creation de la modale ///////////////////////////////////////////////////////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////////////////////
 
+                const url="http://localhost:5678/api/categories";
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
 
-                document.querySelector(".fa-xmark").addEventListener("click", () =>{
-                    modale.setAttribute("style","display:none");
-                    modale.remove();
-                });
+                    // Passage au wrapeur page2 pour ajouter un projet
+                    document.getElementById("boutonAjoutPhoto").addEventListener("click", () =>{
+                        const modale2=document.querySelector(".modalWrapper");
+                        modale2.removeAttribute("class","modalWrapper");
+                        modale2.setAttribute("class","modale2Wrappeur");
 
-                window.addEventListener("click", (e) => {
-                    if (e.target === modale) {
-                        modale.setAttribute("style","display:none");
-                        modale.remove();
-                    } 
+                        const conteneurActionsDuWrapeur = document.getElementById("conteneurActionsDuWrapeur");
+                        conteneurActionsDuWrapeur.setAttribute("class","conteneurActionsDuWrapeurPage2");
+                        conteneurActionsDuWrapeur.innerHTML="";
+                        const conteneurBoutonNavigation=document.createElement("nav");
+                        conteneurBoutonNavigation.setAttribute("id","nav");
+                        
+                        const iconeRetourPageAnterieure=document.createElement("i");
+                        iconeRetourPageAnterieure.classList.add("fa-solid","fa-arrow-left");
+                        const iconeCroixFermeturePageEnCours=document.createElement("i");
+                        iconeCroixFermeturePageEnCours.classList.add("fa-solid","fa-xmark");
+
+                        const titreAjoutPhoto= document.createElement("h3");
+                        titreAjoutPhoto.setAttribute("id","titreAjoutPhoto");
+                        titreAjoutPhoto.textContent="Ajout photo";
+
+                        const blocBleuPourAfficherProjetAAjouter=document.createElement("div");
+                        blocBleuPourAfficherProjetAAjouter.setAttribute("id","blocBleu");
+
+                        const imageChematique=document.createElement("i");
+                        imageChematique.classList.add("fa-sharp","fa-regular","fa-image");
+
+                        const boutonSelectionPhoto=document.createElement("div");
+                        boutonSelectionPhoto.setAttribute("id","boutonSelectionPhoto");
+
+                        const texteBoutonSelectionPhoto=document.createElement("h4");
+                        texteBoutonSelectionPhoto.setAttribute("id","texteBoutonSelectionPhoto");
+                        texteBoutonSelectionPhoto.textContent="jpg, png : 4mo max";
+
+                        const blocAjoutDeProjet=document.createElement("div");
+                        blocAjoutDeProjet.setAttribute("id","blocAjoutDeProjet");
+
+                        const texteTitre=document.createElement("label");
+                        texteTitre.textContent="Titre";
+                        texteTitre.setAttribute("id","texteTitre");
+                        
+                        const saisieTitre=document.createElement("input");
+                        saisieTitre.setAttribute("id","saisieTitre");
+
+                        const texteCategorie=document.createElement("label");
+                        texteCategorie.textContent="Catégorie";
+                        texteCategorie.setAttribute("id","texteCategorie");
+                        
+                        const selectionCategorie=document.createElement("select");
+                        selectionCategorie.setAttribute("id","selectionCategorie");
+
+                        // Selection de la categorie dans une input type select
+                        const choix = document.createElement("option");
+                        choix.setAttribute("id",0);
+                        choix.textContent="";
+                        selectionCategorie.appendChild(choix);
+
+                        for (tableauData of data){
+                            const choix = document.createElement("option");
+                            choix.textContent=`${tableauData.name}`;
+                            choix.setAttribute("id",`${tableauData.id}`);
+                            selectionCategorie.appendChild(choix);
+                        };
+                        
+                        const ligneHorizontaleSeparation2=document.createElement("div");
+                        ligneHorizontaleSeparation2.setAttribute("id","ligneHorizontaleSeparation2");
+
+                        const boutonValidation=document.createElement("bouton");
+                        boutonValidation.setAttribute("id","boutonValidation");
+                        
+                        conteneurActionsDuWrapeur.appendChild(conteneurBoutonNavigation);
+                        conteneurBoutonNavigation.appendChild(iconeRetourPageAnterieure);
+                        conteneurBoutonNavigation.appendChild(iconeCroixFermeturePageEnCours);
+                        conteneurActionsDuWrapeur.appendChild(titreAjoutPhoto);
+                        conteneurActionsDuWrapeur.appendChild(blocBleuPourAfficherProjetAAjouter);
+                        blocBleuPourAfficherProjetAAjouter.appendChild(imageChematique);
+                        blocBleuPourAfficherProjetAAjouter.appendChild(boutonSelectionPhoto);
+
+                        // Ici on cree une zone input file sur bouton,
+                        // on le rend invisible, et au click on ouvre une fenetre de selection
+                        const fichierAEnvoyer = document.createElement("input");
+                        fichierAEnvoyer.setAttribute("type","file");
+                        fichierAEnvoyer.setAttribute("id","fichierAEnvoyer");
+                        blocAjoutDeProjet.appendChild(fichierAEnvoyer);
+
+                        boutonSelectionPhoto.addEventListener("click",()=>{
+                            fichierAEnvoyer.click();
+                        });
+
+                        fichierAEnvoyer.addEventListener("change", () => {
+                            const fichierSelectionne = fichierAEnvoyer.files[0];
+                            console.log(fichierSelectionne);
+                            // const cheminFichierSelectionne = URL.createObjectURL(fichierSelectionne);
+                            // console.log(cheminFichierSelectionne);
+                        });
+
+                        blocBleuPourAfficherProjetAAjouter.appendChild(texteBoutonSelectionPhoto);
+                        conteneurActionsDuWrapeur.appendChild(blocAjoutDeProjet);
+                        blocAjoutDeProjet.appendChild(texteTitre);
+                        blocAjoutDeProjet.appendChild(saisieTitre);
+                        blocAjoutDeProjet.appendChild(texteCategorie);
+                        blocAjoutDeProjet.appendChild(selectionCategorie);
+                        blocAjoutDeProjet.appendChild(ligneHorizontaleSeparation2);
+                        blocAjoutDeProjet.appendChild(boutonValidation);
+
+                        boutonValidation.addEventListener("click", () =>{
+                            boutonValidation.preventDefault();
+                            console.log("saisie du titre : "+saisieTitre.value);
+                            console.log("saisie de la categorie : "+saisieCategorie.value);
+                        });
+
+                        iconeCroixFermeturePageEnCours.addEventListener("click", () => {
+                            modale1.remove();
+                            creeGaleriePagePrincipale();
+                            creeGaleriePagePrincipale(-1).then(projetsFiltres);
+                            afficheMiniGalerieWrappeurPage1(projetsFiltres);
+                        });
+
+                        iconeRetourPageAnterieure.addEventListener("click", () =>{
+                            modale1.remove();
+                            creeGaleriePagePrincipale();
+                            creeGaleriePagePrincipale(-1).then(projetsFiltres);
+                            afficheMiniGalerieWrappeurPage1(projetsFiltres);             
+                        });
+                    });
                 });
             });
         });
     });
 });
+
+
+
+// const selectElement = document.querySelector('.ice-cream');
+// selectElement.addEventListener('change', (event) => {
+//   const result = document.querySelector('.result');
+//   result.textContent = `You like ${event.target.value}`;/
+// });
