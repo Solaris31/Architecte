@@ -1,6 +1,3 @@
-const parentDesBoutons = document.querySelector('.conteneurBoutonFiltre');
-const zonePrincipale = document.getElementById('zonePrincipaleMain');
-
 // teste si toutes les variables sont bien fournies par larchitecte
 let conditions=0;
 
@@ -12,20 +9,15 @@ let fichier="";
 let titre="";
 let categorie=0;
 
-
+// Initialisation du token de larchitecte
 sessionStorage.setItem('token',null);
 
 
-
-async function vidangeGalerie() {
-    const parentDeLaGalerie = document.querySelector('div.gallery');
-    parentDeLaGalerie.innerHTML = "";
-};
-
-
+// Cree autant de boutons que de filtres defini dans l'API "categories"
 async function creeBoutons() {
     // Creation du bouton "Tous" + event listener //////////
     // /////////////////////////////////////////////////////
+    const parentDesBoutons = document.querySelector('.conteneurBoutonFiltre');
     const bouton0=document.createElement("input");
     bouton0.setAttribute("type","radio");
     bouton0.setAttribute("name","bouton");
@@ -76,11 +68,14 @@ async function creeBoutons() {
     });
 };
 
-
+// cree la gallerie de projets en fonction de la categorie passee en parametre,
+// 0 etant le parametre par defaut qui affiche la galerie avec tous les projets
+// -1 etant le parametre pour afficher la galerie du wrappeur 1
 async function creeGalerie(categorie=0) {
-    await vidangeGalerie();
+    const parentDeLaGalerie = document.querySelector('div.gallery');
 
-    const reponse = await fetch("http://localhost:5678/api/works")
+
+    const reponse = await fetch("http://localhost:5678/api/works");
     const data = await reponse.json();
 
     if (categorie == -1) {
@@ -88,9 +83,11 @@ async function creeGalerie(categorie=0) {
         return projetsFiltres;
     }
     else if (categorie == 0){
+        parentDeLaGalerie.innerHTML = "";
         projetsFiltres = data;
     }
     else {
+        parentDeLaGalerie.innerHTML = "";
         projetsFiltres = data.filter(projets => `${projets.categoryId}` == categorie);
     }
 
@@ -100,60 +97,64 @@ async function creeGalerie(categorie=0) {
     for (let i = 0 ; i < projetsFiltres.length ; i++) {
         const projet = document.createElement('figure');
         projet.innerHTML = `<img src="${projetsFiltres[i].imageUrl}" crossorigin="anonymous" alt="${projetsFiltres[i].title}">
-        <figcaption>${projetsFiltres[i].title}</figcaption>`;
+        <figcaption id="titreImage">${projetsFiltres[i].title}</figcaption>`;
         parentDeLaGallerie.appendChild(projet);
     };
 };
 
-
+// Cree le wrappeur1 contenant tous les projets en miniatures.
+// Elle permettra, soit des suppressions de projets, soit des ajouts.
 async function creeWrappeurPage1(){
-    const modale = document.createElement("aside");
-    modale.setAttribute("id","modale");
-    modale.setAttribute("class", "modale");
-    modale.innerHTML = 
-    `<div class="modalWrapper">
-        <div id="conteneurActionsDuWrapeur">
-            <div id="conteneurCroix">
-                <i class="fa-solid fa-xmark"></i>
+    return new Promise(async(resolve, reject) => {
+
+        const siteGlobal=document.getElementById("body");
+
+        const modale1 = document.createElement("aside");
+        modale1.setAttribute("id","modale1");
+        modale1.setAttribute("class", "modale");
+        modale1.innerHTML = 
+        `<div class="modalWrapper">
+            <div id="conteneurActionsDuWrapeur">
+                <div id="conteneurCroix">
+                    <i class="fa-solid fa-xmark"></i>
+                </div>
+                <div id="conteneurTitreGalerie">
+                    <h3>Galerie photo</h3>
+                </div>
+                <div id="conteneurMiniGalerie"></div>
+                <div id="conteneurChoixSurGalerie">
+                    <div id="ligneHorizontaleSeparation"></div>
+                    <button id="boutonAjoutPhoto">Ajouter une photo</button>
+                    <p id="lienSuppressionGalerie">Supprimer la Galerie</p>
+                </div>
             </div>
-            <div id="conteneurTitreGalerie">
-                <h3>Galerie photo</h3>
-            </div>
-            <div id="conteneurMiniGalerie"></div>
-            <div id="conteneurChoixSurGalerie">
-                <div id="ligneHorizontaleSeparation"></div>
-                <button id="boutonAjoutPhoto">Ajouter une photo</button>
-                <p id="lienSuppressionGalerie">Supprimer la Galerie</p>
-            </div>
-        </div>
-    </div>`;
-    siteGlobal.appendChild(modale);
+        </div>`;
+        siteGlobal.appendChild(modale1);
 
-    
-    //  Creation de la mini galerie dans la modale page1
-    await creeGalerie(-1).then(projetsFiltres);
-    await afficheGalerieWrappeurPage1(projetsFiltres);
+        
+        //  Creation de la mini galerie dans la modale1
+        await creeGalerie(-1).then(projetsFiltres);
+        await afficheGalerieWrappeurPage1(projetsFiltres);
 
 
-    // Fermeture modale par bouton croix
-    document.querySelector(".fa-xmark").addEventListener("click", async () =>{
-        // modale.setAttribute("style","display:none");
-        modale.remove();
-        await creeGalerie();
-    });
-
-
-    // Fermeture modale en cliquant a lexterieur du wrapeur
-    window.addEventListener("click", async (e) => {
-        if (e.target === modale) {
-            // modale.setAttribute("style","display:none");
-            modale.remove();
+        // Fermeture modale1 par bouton croix
+        document.querySelector(".fa-xmark").addEventListener("click", async () =>{
+            modale1.remove();
             await creeGalerie();
-        } 
+        });
+
+
+        // Fermeture modale1 en cliquant a lexterieur de la modale1
+        window.addEventListener("click", async (e) => {
+            if (e.target === modale1) {
+                modale1.remove();
+                await creeGalerie();
+            }
+        });
     });
 };
 
-
+// Affiche dans le wrappeur1, la galerie en miniature
 async function afficheGalerieWrappeurPage1(projetsFiltres){
     
     const conteneurMiniGalerie = document.getElementById("conteneurMiniGalerie");
@@ -163,7 +164,6 @@ async function afficheGalerieWrappeurPage1(projetsFiltres){
     const iconeCroix=document.createElement("i");
     iconeCroix.classList.add("fa-solid","fa-up-down-left-right","fa-2xs");
 
-
     let i=1;
     for (projets of projetsFiltres){
         const figure=document.createElement("figure");
@@ -171,7 +171,6 @@ async function afficheGalerieWrappeurPage1(projetsFiltres){
         figure.setAttribute("class","miniFigure");
         figure.setAttribute("value",`${projets.id}`);
         
-
         const photoMiniature=document.createElement("img");
         photoMiniature.setAttribute("src",`${projets.imageUrl}`);
         photoMiniature.setAttribute("id","miniPhoto");
@@ -180,12 +179,10 @@ async function afficheGalerieWrappeurPage1(projetsFiltres){
         photoMiniature.setAttribute("value",`${projets.id}`);
         photoMiniature.setAttribute("alt",`${projets.title}`);
 
-
         const cubeNoirPoubelle=document.createElement("div");
         cubeNoirPoubelle.setAttribute("id",`cubeNoirPoubelle${i}`);
         cubeNoirPoubelle.setAttribute("class","cubeNoirPoubelle");
-        cubeNoirPoubelle.setAttribute("value",`${projets.id}`);
-
+        cubeNoirPoubelle.setAttribute("valeur",`${projets.id}`);
 
         const iconePoubelle=document.createElement("i");
         iconePoubelle.classList.add("fa-regular", "fa-trash-can", "fa-2xs");
@@ -203,7 +200,6 @@ async function afficheGalerieWrappeurPage1(projetsFiltres){
         cubeNoirPoubelle.appendChild(iconePoubelle);
         figure.appendChild(titre);
 
-
         const focusFigure = document.getElementById("figure"+i)
         focusFigure.addEventListener("mouseover", () => {
             focusFigure.appendChild(cubeNoirCroix);
@@ -214,23 +210,44 @@ async function afficheGalerieWrappeurPage1(projetsFiltres){
             focusFigure.removeChild(cubeNoirCroix);
             focusFigure.removeChild(iconeCroix);
         });
-    i++;
+
+        i++;
     }
+
+    document.querySelectorAll(".cubeNoirPoubelle").forEach(cubeNoir => {
+        cubeNoir.addEventListener("click", () => {
+            try{
+                alert ("Suppression projet "+cubeNoir.getAttribute("valeur"));
+                supprimeProjetUnitaire(cubeNoir.getAttribute("valeur"));
+            }
+            catch{
+                alert("Erreur dans la suppression dun projet " +cubeNoir.getAttribute("valeur"));
+            }
+        });
+    });
+
+
+    document.getElementById("lienSuppressionGalerie").addEventListener("click", () => {
+
+    });
 };
 
 
+// Supprime un projet en fonction de la valeur passée en parametre
 async function supprimeProjetUnitaire(id){
     await fetch (`http://localhost:5678/api/works/${id}`, {
         method : "DELETE",
+        body : null,
         headers : {
             "accept" : "*/*" ,
-            "Authorization" : "Bearer "+ sessionStorage.getItem("token")
+            "Authorization" : "Bearer "+ sessionStorage.getItem("token"),
         },
-        body : undefined
     })
-    .then ((reponse) => {
-        if (reponse.ok) {
-            return 1;
+    .then (async (reponse) => {
+        if (!reponse.ok) return;
+        else{
+            document.getElementById("modale1").remove();
+            await creeWrappeurPage1();
         }
     })
     .catch ((error) => {
@@ -239,8 +256,9 @@ async function supprimeProjetUnitaire(id){
 };
 
 
+// Cree la modale2 qui permet dajouter un projet
 async function creeWrappeurPage2(){
-    const modale = document.getElementById("modale");
+    const modale1 = document.getElementById("modale1");
     const modale2=document.querySelector(".modalWrapper");
     modale2.removeAttribute("class","modalWrapper");
     modale2.setAttribute("class","modale2Wrappeur");
@@ -384,13 +402,13 @@ async function creeWrappeurPage2(){
     });
 
     iconeCroixFermeturePageEnCours.addEventListener("click", async () => {
-        modale.remove();
+        modale2.remove();
         await creeGalerie();
         conditions=0;
     });
 
     iconeRetourPageAnterieure.addEventListener("click", async ()=>{
-        modale.remove();
+        modale2.remove();
         await creeWrappeurPage1();
         document.getElementById("boutonAjoutPhoto").addEventListener("click", async () => {
             await creeWrappeurPage2();
@@ -402,7 +420,7 @@ async function creeWrappeurPage2(){
     
     document.getElementById("boutonValidation").addEventListener("click", async () => {
         if (conditions==1){
-            modale.remove();
+            modale2.remove();
             await creeGalerie();
 
             const parentDeLaGallerie = document.querySelector(".gallery");
@@ -423,6 +441,7 @@ async function creeWrappeurPage2(){
 };
 
 
+// Teste dans le modale2, si les 3 champs demandés pour lajout de projet sont bien fournis
 async function conditionsPourValiderNouveauProjet(){
     const coloreDecoloreBoutonValidation=document.getElementById("boutonValidation");
 
@@ -439,165 +458,197 @@ async function conditionsPourValiderNouveauProjet(){
     else return 0;
 };
 
-
+// Affiche la page principale du site en mode edition pour larchitecte
 async function creeGalerieModeEditeur(){
 
-// Reconstruction du bandeau noir dedition
-const siteGlobal = document.querySelector('body');
 
+// Reconstruction du bandeau noir dedition
+const siteGlobal = document.getElementById('body');
 const bandeauModeEditeur = document.createElement("div");
 bandeauModeEditeur.setAttribute("id","bandeauNoir");
-
 bandeauModeEditeur.innerHTML =
 `<i class="fa-regular fa-pen-to-square icone0"></i>
 <p id="texteEdition">Mode édition</p>
 <a href="#">
     <input type="button" id="boutonPublication" value="publier les changements">
 </a>`;
+siteGlobal.insertBefore(bandeauModeEditeur, siteGlobal.firstChild);
 
-siteGlobal.appendChild(bandeauModeEditeur);
+const contenantLoginLogout=document.getElementById("loginLogout");
+const lienLogin = document.getElementById("login");
+lienLogin.textContent="logout";
+lienLogin.removeAttribute("class","LoginGras");
+
+
+const introArchi=document.getElementById("photoArchi");
+const contenantModifPhotoArchi=document.createElement("div")
+contenantModifPhotoArchi.setAttribute("id","contenantBoutonModifierPhotoArchi");
+
+const iconeModifPhotoArchi=document.createElement("i");
+iconeModifPhotoArchi.classList.add("fa-regular","fa-pen-to-square", "icone1");
+
+const lienModifPhotoArchi=document.createElement("a");
+lienModifPhotoArchi.setAttribute("href", "#");
+lienModifPhotoArchi.setAttribute("id","modif1");
+lienModifPhotoArchi.textContent="modifier";
+
+const conteneurTitreMesProjets=document.querySelector("#portfolio div");
+conteneurTitreMesProjets.setAttribute("id","nouvellesMargesconteneurTitreMesProjets");
+
+
+const conteneurBoutonFiltre=document.querySelector(".conteneurBoutonFiltre");
+conteneurBoutonFiltre.style.display="none";
+
+const iconeModifierProjets=document.createElement("i");
+iconeModifierProjets.classList.add("fa-regular","fa-pen-to-square", "icone2");
+
+const lienModifierProjets=document.createElement("a");
+lienModifierProjets.setAttribute("id","lienModifierProjets");
+lienModifierProjets.setAttribute("href","#");
+lienModifierProjets.textContent="modifier";
+
+
+introArchi.appendChild(contenantModifPhotoArchi);
+contenantLoginLogout.appendChild(lienLogin);
+contenantModifPhotoArchi.appendChild(iconeModifPhotoArchi);
+contenantModifPhotoArchi.appendChild(lienModifPhotoArchi);
+conteneurTitreMesProjets.appendChild(iconeModifierProjets);
+conteneurTitreMesProjets.appendChild(lienModifierProjets);
 
 
 
+document.getElementById("modif1").addEventListener("click", () => {
+    alert('On vient dappuyer sur la modif1');
+});
 
-// document.getElementById("modif1").addEventListener("click", () => {
-//     alert('On vient dappuyer sur la modif1');
+// On revient sur la page principale au click sur logout 
+lienLogin.addEventListener("click", () => {
+    sessionStorage.setItem('utilisateur', '');
+    sessionStorage.setItem('token', '');
+    window.location.href="../FrontEnd/index.html";
+    conditions=0;
+});
+
+
+// lienModifierProjets.addEventListener("click", () => {
+//     creeWrappeurPage1();
 // });
-
-// // On revient sur la page principale au click sur logout 
-// document.getElementById("logout").addEventListener("click", () => {
-//     sessionStorage.setItem('utilisateur', '');
-//     sessionStorage.setItem('token', '');
-//     window.location.href="../FrontEnd/index.html";
-//     conditions=0;
-// });
-
-// const introductionModifiee = document.querySelector("section#introduction");
-// introductionModifiee.setAttribute("class","introduction2");
-
-
-// // Reconstruction de la Galerie + titre
-// zonePrincipale.setAttribute("id", "zonePrincipale");
-// const portfolio = document.createElement("section");
-// portfolio.setAttribute("id", "portfolio");
-// portfolio.setAttribute("class", "nouveauPortfolio");
-// portfolio.innerHTML =
-// `<div id="blocFantome"></div>
-// <h2>Mes projets</h2>
-// <a href="#mesProjets" id="modif2"><i class="fa-regular fa-pen-to-square icone2"></i>
-// <p id="projetsAModifier">modifier</p></a>`;
-// zonePrincipale.appendChild(portfolio);
-
-// // Reconstruction de la zone de la Galerie
-// const nouvelleGalerie = document.createElement("div");
-// nouvelleGalerie.setAttribute("class","gallery");
-// zonePrincipale.appendChild(nouvelleGalerie);
 
 // await creeGalerie();
-
 }
 
-
+// Affiche la page de connexion de larchitecte
 async function creeLeFormulaireLoginArchitecte(){
 
-    const body=document.getElementById("body");
+    return new Promise(async (resolve, reject) =>{
+        // On cache la page principale 
+        document.getElementById("zonePrincipaleMain").style.display="none";
+        document.getElementById("footer").style.display="none";
 
-    const formulaireDeConnexionArchitecte = document.createElement("aside");
-    formulaireDeConnexionArchitecte.setAttribute("id","formulaireDeConnexionArchitecte");
+        const body=document.getElementById("body");
+        const lienLoginGras=document.getElementById("login");
 
-    const lienLogin = document.getElementById('login');
-    lienLogin.setAttribute('class', 'nouveauStyleLogin');
-    zonePrincipale.setAttribute('id', 'nouvelleZonePrincipale');
-    zonePrincipale.innerHTML = "";
+        lienLoginGras.setAttribute("class","LoginGras");
 
-    const titreLogin = document.createElement('h2');
-    titreLogin.setAttribute('id', 'titreLoginH2');
+        const formulaireDeConnexionArchitecte = document.createElement("aside");
+        formulaireDeConnexionArchitecte.setAttribute("id","formulaireDeConnexionArchitecte");
 
-    const formulaire= document.createElement("form");
-    formulaire.setAttribute("name","formulaire");
-    formulaire.setAttribute("class","form");
+        const titreLogin = document.createElement('h2');
+        titreLogin.setAttribute('id', 'titreLoginH2');
 
-    const labelEmail = document.createElement('label');
-    labelEmail.setAttribute('for', 'email');
-    labelEmail.setAttribute('id', 'texteEmailLogIn');
+        const formulaire= document.createElement("form");
+        formulaire.setAttribute("name","formulaire");
+        formulaire.setAttribute("class","form");
 
-    const inputEmail = document.createElement('input');
-    inputEmail.setAttribute('type', 'email');
-    inputEmail.setAttribute('id', 'inputMail');
-    inputEmail.setAttribute("autocomplete","on");
+        const labelEmail = document.createElement('label');
+        labelEmail.setAttribute('for', 'email');
+        labelEmail.setAttribute('id', 'texteEmailLogIn');
 
-    const labelMotDePasse = document.createElement('label');
-    labelMotDePasse.setAttribute('for', 'password');
-    labelMotDePasse.setAttribute('id', 'texteMotDePasseLogIn');
+        const inputEmail = document.createElement('input');
+        inputEmail.setAttribute('type', 'email');
+        inputEmail.setAttribute('id', 'inputMail');
+        inputEmail.setAttribute("autocomplete","on");
 
-    const inputMotDePasse = document.createElement('input');
-    inputMotDePasse.setAttribute('type', 'password');
-    inputMotDePasse.setAttribute('id', 'inputMotDePasseLogIn');
-    inputMotDePasse.setAttribute("autocomplete","off");
-    titreLogin.innerHTML = `Log In</h2>`;
-    labelEmail.innerHTML = `E-mail</label>`;
-    inputEmail.innerHTML = `</input>`;
-    labelMotDePasse.innerHTML = `Mot de passe</label>`;
-    inputMotDePasse.innerHTML = `</input>`;
+        const labelMotDePasse = document.createElement('label');
+        labelMotDePasse.setAttribute('for', 'password');
+        labelMotDePasse.setAttribute('id', 'texteMotDePasseLogIn');
 
-    const boutonSeConnecter = document.createElement('input');
-    boutonSeConnecter.setAttribute('type', 'button');
-    boutonSeConnecter.setAttribute('id', 'boutonSeConnecterLogIn');
-    boutonSeConnecter.setAttribute('value', 'Se connecter');
-    boutonSeConnecter.innerHTML = `</input>`;
+        const inputMotDePasse = document.createElement('input');
+        inputMotDePasse.setAttribute('type', 'password');
+        inputMotDePasse.setAttribute('id', 'inputMotDePasseLogIn');
+        inputMotDePasse.setAttribute("autocomplete","off");
+        titreLogin.innerHTML = `Log In</h2>`;
+        labelEmail.innerHTML = `E-mail</label>`;
+        inputEmail.innerHTML = `</input>`;
+        labelMotDePasse.innerHTML = `Mot de passe</label>`;
+        inputMotDePasse.innerHTML = `</input>`;
 
-    const motDePasseOublie = document.createElement('a');
-    motDePasseOublie.setAttribute('href', '#');
-    motDePasseOublie.setAttribute('id', 'motDePasseOublie');
-    motDePasseOublie.innerHTML = `Mot de passe oublié</a>`
+        const boutonSeConnecter = document.createElement('input');
+        boutonSeConnecter.setAttribute('type', 'button');
+        boutonSeConnecter.setAttribute('id', 'boutonSeConnecterLogIn');
+        boutonSeConnecter.setAttribute('value', 'Se connecter');
+        boutonSeConnecter.innerHTML = `</input>`;
 
-    const mentionsLegales= document.createElement("footer");
-    mentionsLegales.setAttribute("id", "footerFormulaireIdentification");
-    mentionsLegales.textContent="Mentions légales";
+        const motDePasseOublie = document.createElement('a');
+        motDePasseOublie.setAttribute('href', '#');
+        motDePasseOublie.setAttribute('id', 'motDePasseOublie');
+        motDePasseOublie.innerHTML = `Mot de passe oublié</a>`
 
-    body.appendChild(formulaireDeConnexionArchitecte);
-    formulaireDeConnexionArchitecte.appendChild(titreLogin);
-    formulaireDeConnexionArchitecte.appendChild(formulaire);
-    formulaire.appendChild(labelEmail);
-    formulaire.appendChild(inputEmail);
-    formulaire.appendChild(labelMotDePasse);
-    formulaire.appendChild(inputMotDePasse);
-    formulaire.appendChild(boutonSeConnecter);
-    formulaire.appendChild(motDePasseOublie);
-    body.appendChild(mentionsLegales);
+        const mentionsLegales= document.createElement("footer");
+        mentionsLegales.setAttribute("id", "footerFormulaireIdentification");
+        mentionsLegales.textContent="Mentions légales";
 
-    //Recuperation des identifiants tapés
-    document.getElementById('boutonSeConnecterLogIn').addEventListener('click', async () => {
+        body.appendChild(formulaireDeConnexionArchitecte);
+        formulaireDeConnexionArchitecte.appendChild(titreLogin);
+        formulaireDeConnexionArchitecte.appendChild(formulaire);
+        formulaire.appendChild(labelEmail);
+        formulaire.appendChild(inputEmail);
+        formulaire.appendChild(labelMotDePasse);
+        formulaire.appendChild(inputMotDePasse);
+        formulaire.appendChild(boutonSeConnecter);
+        formulaire.appendChild(motDePasseOublie);
+        body.appendChild(mentionsLegales);
 
-        const chargeUtile = { 
-            email : "",
-            password : "" };
+        //Recuperation des identifiants tapés
+        document.getElementById('boutonSeConnecterLogIn').addEventListener('click', async () => {
 
-        chargeUtile.email = document.getElementById('inputMail').value;
-        chargeUtile.password = document.getElementById('inputMotDePasseLogIn').value;
+            const chargeUtile = { 
+                email : "",
+                password : "" };
+
+            chargeUtile.email = document.getElementById('inputMail').value;
+            chargeUtile.password = document.getElementById('inputMotDePasseLogIn').value;
 
 
-        const url ="http://localhost:5678/api/users/login";
-        await fetch (url, {
-            method : "POST",
-            headers : {"content-type":"application/json"},
-            body : JSON.stringify(chargeUtile)
-        })
-        .then (async (reponse) => {
-            if (!reponse.ok){
-                if ((reponse.status === 401) || (reponse.status === 404)) {alert("Erreur dans l'identifiant ou dans le mot de passe")};
-            }
-            else {
-                return (await reponse.json());
-            };
-        })
-        .then (data => {
-            sessionStorage.setItem('token', data.token);
-            console.log("toto");
-            return 1;
-        })
-        .catch( error => {
-            return 0;
+            await fetch ("http://localhost:5678/api/users/login", {
+                method : "POST",
+                headers : {"content-type":"application/json"},
+                body : JSON.stringify(chargeUtile)
+            })
+            .then (async (reponse) => {
+                if (!reponse.ok){
+                    if ((reponse.status === 401) || (reponse.status === 404)) {
+                        alert("Erreur dans l'identifiant ou dans le mot de passe");
+                    };
+                }
+                else {
+                    return (await reponse.json());
+                };
+            })
+            .then (async (data) => {
+                sessionStorage.setItem('token', data.token);
+                document.getElementById("formulaireDeConnexionArchitecte").style.display="none";
+                document.getElementById("footerFormulaireIdentification").style.display="none";
+                document.getElementById("zonePrincipaleMain").style.display="block";
+                document.getElementById("footer").style.display="block";
+
+                await creeGalerieModeEditeur();
+                resolve(1);
+            })
+            .catch(async (error) => { 
+                console.log("Message derreur : "+error.message);
+                resolve (0);
+            });
         });
     });
 }
@@ -605,31 +656,26 @@ async function creeLeFormulaireLoginArchitecte(){
 
 
 // On modifie la page principale en lui ajoutant des boutons et la galerie de projets
-creeBoutons();
-creeGalerie();
-
-
-
-// Creation formulaire de login de larchitecte
-document.getElementById("login").addEventListener("click", async () => {
-
-
-    if (sessionStorage.getItem('token') == 'null') {
-        // On cache la page principale 
-        document.getElementById("zonePrincipaleMain").style.display="none";
-        document.getElementById("footer").style.display="none";
-
-        // Passage au formulaire didentification de larchitecte
-        await creeLeFormulaireLoginArchitecte();
-
-        console.log(sessionStorage.getItem("token"));
-    };
+document.addEventListener("DOMContentLoaded", () =>{
+    creeBoutons();
+    creeGalerie();
 });
 
 
 
+if (sessionStorage.getItem('token') == 'null') {
+    // Passage au formulaire de login de larchitecte en cliquant sur le bouton "login"
+    document.getElementById("login").addEventListener("click", async () => {
+        await creeLeFormulaireLoginArchitecte();
+
+
+        // Passage au wrappeur1 qui permet dajouter ou de supprimer des projets
+        lienModifierProjets.addEventListener("click", async () => {
+            await creeWrappeurPage1();
 
 
 
-
-
+        });
+    });
+}
+else alert("Vous etes deja connecté");
