@@ -18,7 +18,7 @@
 		<ul>
 			<li><a href="#portfolio">projets</a></li>
 			<li><a href="#contact">contact</a></li>
-			<li><a href="#formulaireConnection" id="login">login</a></li>
+			<li id="loginLogout"><a href="#formulaireConnection" id="login">login</a></li>
 			<a href>
 				<li><img src="./assets/icons/instagram.png" alt="Instagram"></li>
 			</a>
@@ -28,7 +28,7 @@
 <main id="zonePrincipaleMain">
 	
 	<section id="introduction">
-		<figure>
+		<figure id="photoArchi">
 			<img src="./assets/images/sophie-bluel.png" alt="">
 		</figure>
 		<article>
@@ -40,7 +40,9 @@
 	</section>
 
 	<section id="portfolio">
-		<h2>Mes Projets</h2>
+		<div id="conteneurTitreMesProjets">
+			<h2 id="titreMesProjets">Mes Projets</h2>
+		</div>
 		<nav class="conteneurBoutonFiltre"></nav>
 		<div class="gallery"></div>
 	</section>
@@ -63,7 +65,7 @@
 <footer id="footer">
 	<nav>
 		<ul>
-			<li>Mentions Légales</li>
+			<li id="mentionsLegales">Mentions Légales</li>
 		</ul>
 	</nav>
 </footer>
