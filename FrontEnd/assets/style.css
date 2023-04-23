@@ -242,6 +242,14 @@ a:hover {
 	margin-bottom: 0.5em;
 }
 
+#nouvellesMargesconteneurTitreMesProjets{
+	display:flex;
+	justify-content: center;
+	margin-bottom: 92px;
+	flex-direction: row;
+	align-items: center;
+}
+
 .conteneurBoutonFiltre {
 	width: 100%;
 	display: flex;
@@ -339,7 +347,7 @@ input[type=radio] {
 
 .gallery img {
 	width: 100%;
-	height: 100%;
+	height: 97%;
 	object-fit: cover;
 }
 
@@ -362,6 +370,16 @@ input[type=radio] {
 	margin-top: 30px;
 	display: flex;
 	flex-direction: column;
+}
+
+#titreImage{
+	padding:1px 0 13px 0;
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 13px;
+	line-height: 15px;
+	color: #3D3D3D;
 }
 
 #contact input {
@@ -405,6 +423,15 @@ footer nav ul {
 	background: none;
 }
 
+#mentionsLegales{
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 300;
+	font-size: 14px;
+	line-height: 16px;
+	color: #000000;
+}
+
 /* Design feuille de login********************************************************** */
 
 #formulaireDeConnexionArchitecte {
@@ -428,8 +455,7 @@ footer nav ul {
 	margin: 112px 0 37px 0;
 }
 
-#inputMail,
-#inputMotDePasseLogIn {
+#inputMail, #inputMotDePasseLogIn {
 	background: #FFFFFF;
 	height: 51px;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
@@ -441,8 +467,7 @@ footer nav ul {
 	margin-bottom: 30px;
 }
 
-#texteEmailLogIn,
-#texteMotDePasseLogIn {
+#texteEmailLogIn, #texteMotDePasseLogIn {
 	font-family: 'Work Sans';
 	font-style: normal;
 	font-weight: 500;
@@ -477,6 +502,16 @@ input[value="Envoyer"]:hover,
 	line-height: 19px;
 }
 
+.LoginGras{
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 19px;
+	text-align: center;
+	color: #000000;
+}
+
 #motDePasseOublie {
 	text-decoration: underline;
 	margin-bottom: 300px;
@@ -502,6 +537,24 @@ input[value="Envoyer"]:hover,
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+#photoArchi{
+	display:flex;
+	flex-direction: column;
+}
+#lienModifPhotoArchi{
+
+	font-family: 'Work Sans';
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 16px;
+	color: #000000;
+}
+#contenantBoutonModifierPhotoArchi{
+	margin: 16px 0 58px 0;
+	display:flex;
+	flex-direction: row;
 }
 
 .icone0 {
