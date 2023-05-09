@@ -1,16 +1,16 @@
 // teste si toutes les variables sont bien fournies par larchitecte
-let conditions=0;
+let conditions = 0;
 
 // Chemin temporaire pour faire un preview du projet a ajouter
-let urlTemporaire ="";
+let urlTemporaire = "";
 
 // Variables de la charge utile pour le fletch post
-let fichier="";
-let titre="";
-let categorie=0;
+let fichier = "";
+let titre = "";
+let categorie = 0;
 
 // Initialisation du token de larchitecte
-sessionStorage.setItem('token',null);
+sessionStorage.setItem('token', null);
 
 
 // Cree autant de boutons que de filtres defini dans l'API "categories"
@@ -18,19 +18,19 @@ async function creeBoutons() {
     // Creation du bouton "Tous" + event listener //////////
     // /////////////////////////////////////////////////////
     const parentDesBoutons = document.querySelector('.conteneurBoutonFiltre');
-    const bouton0=document.createElement("input");
-    bouton0.setAttribute("type","radio");
-    bouton0.setAttribute("name","bouton");
-    bouton0.setAttribute("class","boutonOrigine");
-    bouton0.setAttribute("value","0");
-    bouton0.setAttribute("id","boutonFiltreObjets0");
-    bouton0.setAttribute("checked","");
+    const bouton0 = document.createElement("input");
+    bouton0.setAttribute("type", "radio");
+    bouton0.setAttribute("name", "bouton");
+    bouton0.setAttribute("class", "boutonOrigine");
+    bouton0.setAttribute("value", "0");
+    bouton0.setAttribute("id", "boutonFiltreObjets0");
+    bouton0.setAttribute("checked", "");
     parentDesBoutons.appendChild(bouton0);
 
-    const label0=document.createElement("label");
-    label0.setAttribute("for","boutonFiltreObjets0");
-    label0.setAttribute("class","btn bouton0");
-    label0.textContent="Tous";
+    const label0 = document.createElement("label");
+    label0.setAttribute("for", "boutonFiltreObjets0");
+    label0.setAttribute("class", "btn bouton0");
+    label0.textContent = "Tous";
     parentDesBoutons.appendChild(label0);
 
     document.querySelector(".bouton0").addEventListener('click', () => {
@@ -38,82 +38,109 @@ async function creeBoutons() {
     });
 
 
-    // Creation des boutons "Objets", "Appartements", "Hotels et restaurants" + event listener ///////////////
+    // Creation de tous les autres boutons definis dans lAPI "categories" + event listener ///////////////
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////
-    const url = 'http://localhost:5678/api/categories';
-    const reponse = await fetch(url);
-    const data = await reponse.json();
+    await fetch("http://localhost:5678/api/categories", {
+        method: "GET",
+        body: null,
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then(async (reponse) => {
+            if (!reponse.ok) { alert("Erreur de connexion"); return reponse.json(); }
+            else return reponse.json();
+        })
+        .then(async (data) => {
+            for (valeursDeData of data) {
+                const boutonX = document.createElement("input");
+                boutonX.setAttribute("type", "radio");
+                boutonX.setAttribute("name", "bouton");
+                boutonX.setAttribute("class", "bouton");
+                boutonX.setAttribute("value", `${valeursDeData.id}`);
+                boutonX.setAttribute("id", `boutonFiltreObjets${valeursDeData.id}`);
+                parentDesBoutons.appendChild(boutonX);
 
+                const labelX = document.createElement("label");
+                labelX.setAttribute("for", `boutonFiltreObjets${valeursDeData.id}`);
+                labelX.setAttribute("class", `btn bouton${valeursDeData.id}`);
+                labelX.textContent = `${valeursDeData.name}`;
+                parentDesBoutons.appendChild(labelX);
+            };
 
-    for (valeursDeData of data) {
-        const boutonX=document.createElement("input");
-        boutonX.setAttribute("type","radio");
-        boutonX.setAttribute("name","bouton");
-        boutonX.setAttribute("class","bouton");
-        boutonX.setAttribute("value",`${valeursDeData.id}`);
-        boutonX.setAttribute("id",`boutonFiltreObjets${valeursDeData.id}`);
-        parentDesBoutons.appendChild(boutonX);
-
-        const labelX=document.createElement("label");
-        labelX.setAttribute("for", `boutonFiltreObjets${valeursDeData.id}`);
-        labelX.setAttribute("class", `btn bouton${valeursDeData.id}`);
-        labelX.textContent=`${valeursDeData.name}`;
-        parentDesBoutons.appendChild(labelX);
-    };
-    
-    document.querySelectorAll(".bouton").forEach(bouton => {
-        bouton.addEventListener('click', () => {
-            if (bouton.checked) {creeGalerie(bouton.value);}
-        });
-    });
+            document.querySelectorAll(".bouton").forEach(bouton => {
+                bouton.addEventListener('click', () => {
+                    if (bouton.checked) { creeGalerie(bouton.value); }
+                });
+            });
+        })
+        .catch((error) => {
+            console.error("Erreur dans la requete : ", error);
+        })
 };
 
-// cree la gallerie de projets en fonction de la categorie passee en parametre,
-// 0 etant le parametre par defaut qui affiche la galerie avec tous les projets
-// -1 etant le parametre pour afficher la galerie du wrappeur 1
-async function creeGalerie(categorie=0) {
+
+// creation de la gallerie de projets (Page principale, mode edition, et wrappeur1)
+async function creeGalerie(categorie = 0) {
+
     const parentDeLaGalerie = document.querySelector('div.gallery');
 
+    await fetch("http://localhost:5678/api/works", {
+        method: "GET",
+        body: null,
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then(async (reponse) => {
+            if (!reponse.ok) {
+                console.log("Erreur dacces aux donnees");
+                return reponse.json();
+            }
+            return reponse.json();
+        })
+        .then(async (data) => {
+            // Tous les projets sont recupérés pour de la galerie du wrappeur1
+            if (categorie == -1) {
+                projetsFiltres = data;
+                return projetsFiltres;
+            }
+            // Tous les projets sont affichés (0 par defaut) dans la fenetre principale ou le mode edition
+            else if (categorie == 0) {
+                parentDeLaGalerie.innerHTML = "";
+                projetsFiltres = data;
+            }
+            // Les projets sont filtrés selon le parametre choisi pour un affichage dans la fenetre principale ou le mode edition
+            else {
+                parentDeLaGalerie.innerHTML = "";
+                projetsFiltres = data.filter(projets => `${projets.categoryId}` == categorie);
+            }
 
-    const reponse = await fetch("http://localhost:5678/api/works");
-    const data = await reponse.json();
+            for (let i = 0; i < projetsFiltres.length; i++) {
+                const projet = document.createElement('figure');
+                projet.innerHTML = `<img src="${projetsFiltres[i].imageUrl}" crossorigin="anonymous" alt="${projetsFiltres[i].title}">
+            <figcaption id="titreImage">${projetsFiltres[i].title}</figcaption>`;
+                parentDeLaGalerie.appendChild(projet);
+            }
 
-    if (categorie == -1) {
-        projetsFiltres = data;
-        return projetsFiltres;
-    }
-    else if (categorie == 0){
-        parentDeLaGalerie.innerHTML = "";
-        projetsFiltres = data;
-    }
-    else {
-        parentDeLaGalerie.innerHTML = "";
-        projetsFiltres = data.filter(projets => `${projets.categoryId}` == categorie);
-    }
+        })
+        .catch((error) => {
+            console.error("Erreur dans lappel fetch : ", error);
+        })
+}
 
 
-    const parentDeLaGallerie = document.querySelector('div.gallery');
-    parentDeLaGallerie.innerHTML='';
-    for (let i = 0 ; i < projetsFiltres.length ; i++) {
-        const projet = document.createElement('figure');
-        projet.innerHTML = `<img src="${projetsFiltres[i].imageUrl}" crossorigin="anonymous" alt="${projetsFiltres[i].title}">
-        <figcaption id="titreImage">${projetsFiltres[i].title}</figcaption>`;
-        parentDeLaGallerie.appendChild(projet);
-    };
-};
+// Cree le wrappeur1 contenant tous les projets en miniatures, elle permet des suppressions de projets et des ajouts.
+async function creeWrappeur1() {
+    return new Promise(async (resolve, reject) => {
 
-// Cree le wrappeur1 contenant tous les projets en miniatures.
-// Elle permettra, soit des suppressions de projets, soit des ajouts.
-async function creeWrappeurPage1(){
-    return new Promise(async(resolve, reject) => {
+        const siteGlobal = document.getElementById("body");
 
-        const siteGlobal=document.getElementById("body");
-
-        const modale1 = document.createElement("aside");
-        modale1.setAttribute("id","modale1");
-        modale1.setAttribute("class", "modale");
-        modale1.innerHTML = 
-        `<div class="modalWrapper">
+        const modale = document.createElement("aside");
+        modale.setAttribute("id", "modale");
+        modale.setAttribute("class", "modale");
+        modale.innerHTML =
+            `<div class="wrappeur1">
             <div id="conteneurActionsDuWrapeur">
                 <div id="conteneurCroix">
                     <i class="fa-solid fa-xmark"></i>
@@ -129,70 +156,69 @@ async function creeWrappeurPage1(){
                 </div>
             </div>
         </div>`;
-        siteGlobal.appendChild(modale1);
+        siteGlobal.appendChild(modale);
 
-        
-        //  Creation de la mini galerie dans la modale1
+
+        //  Creation de la mini galerie dans la modale
         await creeGalerie(-1).then(projetsFiltres);
-        await afficheGalerieWrappeurPage1(projetsFiltres);
+        await afficheGalerieWrappeur1(projetsFiltres);
 
-
-        // Fermeture modale1 par bouton croix
-        document.querySelector(".fa-xmark").addEventListener("click", async () =>{
-            modale1.remove();
+        // Fermeture modale par bouton croix
+        document.querySelector(".fa-xmark").addEventListener("click", async () => {
+            modale.remove();
             await creeGalerie();
         });
 
-
-        // Fermeture modale1 en cliquant a lexterieur de la modale1
+        // Fermeture modale en cliquant a lexterieur de la modale
         window.addEventListener("click", async (e) => {
-            if (e.target === modale1) {
-                modale1.remove();
+            if (e.target == modale) {
+                modale.remove();
                 await creeGalerie();
             }
         });
     });
 };
 
+
 // Affiche dans le wrappeur1, la galerie en miniature
-async function afficheGalerieWrappeurPage1(projetsFiltres){
-    
+async function afficheGalerieWrappeur1(projetsFiltres) {
+
     const conteneurMiniGalerie = document.getElementById("conteneurMiniGalerie");
 
-    const cubeNoirCroix=document.createElement("div");
-    cubeNoirCroix.setAttribute("class","cubeNoirCroix");
-    const iconeCroix=document.createElement("i");
-    iconeCroix.classList.add("fa-solid","fa-up-down-left-right","fa-2xs");
+    const cubeNoirCroix = document.createElement("div");
+    cubeNoirCroix.setAttribute("class", "cubeNoirCroix");
+    const iconeCroix = document.createElement("i");
+    iconeCroix.classList.add("fa-solid", "fa-up-down-left-right", "fa-2xs");
 
-    let i=1;
-    for (projets of projetsFiltres){
-        const figure=document.createElement("figure");
-        figure.setAttribute("id",`figure${i}`);
-        figure.setAttribute("class","miniFigure");
-        figure.setAttribute("value",`${projets.id}`);
-        
-        const photoMiniature=document.createElement("img");
-        photoMiniature.setAttribute("src",`${projets.imageUrl}`);
-        photoMiniature.setAttribute("id","miniPhoto");
-        photoMiniature.setAttribute("class",`miniPhoto${projets.id}`);
-        photoMiniature.setAttribute("crossorigin","anonymous");
-        photoMiniature.setAttribute("value",`${projets.id}`);
-        photoMiniature.setAttribute("alt",`${projets.title}`);
+    let i = 1;
+    for (projets of projetsFiltres) {
+        const figure = document.createElement("figure");
+        figure.setAttribute("id", `figure${i}`);
+        figure.setAttribute("class", "miniFigure");
+        figure.setAttribute("value", `${projets.id}`);
 
-        const cubeNoirPoubelle=document.createElement("div");
-        cubeNoirPoubelle.setAttribute("id",`cubeNoirPoubelle${i}`);
-        cubeNoirPoubelle.setAttribute("class","cubeNoirPoubelle");
-        cubeNoirPoubelle.setAttribute("valeur",`${projets.id}`);
+        const photoMiniature = document.createElement("img");
+        photoMiniature.setAttribute("src", `${projets.imageUrl}`);
+        photoMiniature.setAttribute("id", "miniPhoto");
+        photoMiniature.setAttribute("class", `miniPhoto${projets.id}`);
+        photoMiniature.setAttribute("crossorigin", "anonymous");
+        photoMiniature.setAttribute("value", `${projets.id}`);
+        photoMiniature.setAttribute("alt", `${projets.title}`);
 
-        const iconePoubelle=document.createElement("i");
+        const cubeNoirPoubelle = document.createElement("div");
+        cubeNoirPoubelle.setAttribute("id", `cubeNoirPoubelle${i}`);
+        cubeNoirPoubelle.setAttribute("class", "cubeNoirPoubelle");
+        cubeNoirPoubelle.setAttribute("valeur", `${projets.id}`);
+
+        const iconePoubelle = document.createElement("i");
         iconePoubelle.classList.add("fa-regular", "fa-trash-can", "fa-2xs");
-        iconePoubelle.setAttribute("id",`poubelleNumero${projets.id}`);
+        iconePoubelle.setAttribute("id", `poubelleNumero${projets.id}`);
 
 
-        const titre=document.createElement("figcaption");
-        titre.setAttribute("class","textPhoto");
-        titre.setAttribute("id",`photoNumero${projets.id}`);
-        titre.textContent="éditer";
+        const titre = document.createElement("figcaption");
+        titre.setAttribute("class", "textPhoto");
+        titre.setAttribute("id", `photoNumero${projets.id}`);
+        titre.textContent = "éditer";
 
         conteneurMiniGalerie.appendChild(figure);
         figure.appendChild(photoMiniature);
@@ -200,7 +226,7 @@ async function afficheGalerieWrappeurPage1(projetsFiltres){
         cubeNoirPoubelle.appendChild(iconePoubelle);
         figure.appendChild(titre);
 
-        const focusFigure = document.getElementById("figure"+i)
+        const focusFigure = document.getElementById("figure" + i)
         focusFigure.addEventListener("mouseover", () => {
             focusFigure.appendChild(cubeNoirCroix);
             focusFigure.appendChild(iconeCroix);
@@ -214,122 +240,157 @@ async function afficheGalerieWrappeurPage1(projetsFiltres){
         i++;
     }
 
+
+    // Suppression individuelle au click sur une poubelle
     document.querySelectorAll(".cubeNoirPoubelle").forEach(cubeNoir => {
         cubeNoir.addEventListener("click", () => {
-            try{
-                alert ("Suppression projet "+cubeNoir.getAttribute("valeur"));
+            try {
                 supprimeProjetUnitaire(cubeNoir.getAttribute("valeur"));
             }
-            catch{
-                alert("Erreur dans la suppression dun projet " +cubeNoir.getAttribute("valeur"));
+            catch {
+                alert("Erreur dans la suppression dun projet " + cubeNoir.getAttribute("valeur"));
             }
         });
     });
 
 
+    // Suppression complete de tous les projets
     document.getElementById("lienSuppressionGalerie").addEventListener("click", () => {
+        document.querySelectorAll(".cubeNoirPoubelle").forEach(cubeNoir => {
+            supprimeProjetUnitaire(cubeNoir.getAttribute("valeur"));
+        });
+    });
 
+
+    // Ajout dun projet
+    document.getElementById("boutonAjoutPhoto").addEventListener("click", async () => {
+        await creeWrappeur2();
     });
 };
 
 
 // Supprime un projet en fonction de la valeur passée en parametre
-async function supprimeProjetUnitaire(id){
-    await fetch (`http://localhost:5678/api/works/${id}`, {
-        method : "DELETE",
-        body : null,
-        headers : {
-            "accept" : "*/*" ,
-            "Authorization" : "Bearer "+ sessionStorage.getItem("token"),
+function supprimeProjetUnitaire(id) {
+    fetch(`http://localhost:5678/api/works/${id}`, {
+        method: "DELETE",
+        body: null,
+        headers: {
+            "Content-Type": "*/*",
+            "Authorization": "Bearer " + sessionStorage.getItem("token"),
         },
     })
-    .then (async (reponse) => {
-        if (!reponse.ok) return;
-        else{
-            document.getElementById("modale1").remove();
-            await creeWrappeurPage1();
-        }
-    })
-    .catch ((error) => {
-        console.log(error);
-    })
+        .then(async (reponse) => {
+            if (!reponse.ok) { alert("Erreur lors de la suppression"); return reponse.json(); }
+            else {
+                modale.remove();
+                await creeWrappeur1();
+            };
+        })
+        .catch((error) => {
+            console.error("Erreur dans lappel fetch : ", error);
+        })
 };
 
 
-// Cree la modale2 qui permet dajouter un projet
-async function creeWrappeurPage2(){
-    const modale1 = document.getElementById("modale1");
-    const modale2=document.querySelector(".modalWrapper");
-    modale2.removeAttribute("class","modalWrapper");
-    modale2.setAttribute("class","modale2Wrappeur");
+// Cree le wrappeur2 qui permet dajouter un projet
+async function creeWrappeur2() {
+    let cheminProjet = {};
 
-    const conteneurActionsDuWrapeur = document.getElementById("conteneurActionsDuWrapeur");
-    conteneurActionsDuWrapeur.setAttribute("class","conteneurActionsDuWrapeurPage2");
-    conteneurActionsDuWrapeur.innerHTML="";
-    const conteneurBoutonNavigation=document.createElement("nav");
-    conteneurBoutonNavigation.setAttribute("id","nav");
+    const body = document.querySelector("body");
+    document.getElementById("modale").remove();
 
-    const iconeRetourPageAnterieure=document.createElement("i");
-    iconeRetourPageAnterieure.classList.add("fa-solid","fa-arrow-left");
-    const iconeCroixFermeturePageEnCours=document.createElement("i");
-    iconeCroixFermeturePageEnCours.classList.add("fa-solid","fa-xmark");
+    const modale = document.createElement("aside");
+    modale.setAttribute("class", "modale");
+    body.appendChild(modale);
 
-    const titreAjoutPhoto= document.createElement("h3");
-    titreAjoutPhoto.setAttribute("id","titreAjoutPhoto");
-    titreAjoutPhoto.textContent="Ajout photo";
+    const wrappeur2 = document.createElement("div");
+    wrappeur2.setAttribute("class", "wrappeur2");
+    modale.appendChild(wrappeur2);
 
-    const blocBleuPourAfficherProjetAAjouter=document.createElement("div");
-    blocBleuPourAfficherProjetAAjouter.setAttribute("id","blocBleu");
 
-    const imageChematique=document.createElement("i");
-    imageChematique.classList.add("fa-sharp","fa-regular","fa-image");
+    const conteneurActionsDuWrapeur = document.createElement("div");
+    wrappeur2.appendChild(conteneurActionsDuWrapeur);
 
-    const boutonSelectionPhoto=document.createElement("div");
-    boutonSelectionPhoto.setAttribute("id","boutonSelectionPhoto");
+    conteneurActionsDuWrapeur.setAttribute("class", "conteneurActionsDuWrapeurPage2");
+    const conteneurBoutonNavigation = document.createElement("nav");
+    conteneurBoutonNavigation.setAttribute("id", "nav");
 
-    const texteBoutonSelectionPhoto=document.createElement("h4");
-    texteBoutonSelectionPhoto.setAttribute("id","texteBoutonSelectionPhoto");
-    texteBoutonSelectionPhoto.textContent="jpg, png : 4mo max";
+    const iconeRetourPageAnterieure = document.createElement("i");
+    iconeRetourPageAnterieure.classList.add("fa-solid", "fa-arrow-left");
+    const iconeCroixFermeturePageEnCours = document.createElement("i");
+    iconeCroixFermeturePageEnCours.classList.add("fa-solid", "fa-xmark");
 
-    const blocAjoutDeProjet=document.createElement("div");
-    blocAjoutDeProjet.setAttribute("id","blocAjoutDeProjet");
+    const titreAjoutPhoto = document.createElement("h3");
+    titreAjoutPhoto.setAttribute("id", "titreAjoutPhoto");
+    titreAjoutPhoto.textContent = "Ajout photo";
 
-    const texteTitre=document.createElement("label");
-    texteTitre.textContent="Titre";
-    texteTitre.setAttribute("id","texteTitre");
+    const blocBleuPourAfficherProjetAAjouter = document.createElement("div");
+    blocBleuPourAfficherProjetAAjouter.setAttribute("id", "blocBleu");
 
-    const saisieTitre=document.createElement("input");
-    saisieTitre.setAttribute("id","saisieTitre");
+    const imageChematique = document.createElement("i");
+    imageChematique.classList.add("fa-sharp", "fa-regular", "fa-image");
 
-    const texteCategorie=document.createElement("label");
-    texteCategorie.textContent="Catégorie";
-    texteCategorie.setAttribute("id","texteCategorie");
+    const boutonSelectionPhoto = document.createElement("div");
+    boutonSelectionPhoto.setAttribute("id", "boutonSelectionPhoto");
 
-    const selectionCategorie=document.createElement("select");
-    selectionCategorie.setAttribute("id","selectionCategorie");
+    const texteBoutonSelectionPhoto = document.createElement("h4");
+    texteBoutonSelectionPhoto.setAttribute("id", "texteBoutonSelectionPhoto");
+    texteBoutonSelectionPhoto.textContent = "jpg, png : 4mo max";
+
+    const blocAjoutDeProjet = document.createElement("div");
+    blocAjoutDeProjet.setAttribute("id", "blocAjoutDeProjet");
+
+    const texteTitre = document.createElement("label");
+    texteTitre.textContent = "Titre";
+    texteTitre.setAttribute("id", "texteTitre");
+
+    const saisieTitre = document.createElement("input");
+    saisieTitre.setAttribute("id", "saisieTitre");
+
+    const texteCategorie = document.createElement("label");
+    texteCategorie.textContent = "Catégorie";
+    texteCategorie.setAttribute("id", "texteCategorie");
+
+    const selectionCategorie = document.createElement("select");
+    selectionCategorie.setAttribute("id", "selectionCategorie");
 
     // Selection de la categorie dans une input type select
     const choix = document.createElement("option");
-    choix.setAttribute("value",0);
-    choix.textContent="";
+    choix.setAttribute("value", 0);
+    choix.textContent = "";
     selectionCategorie.appendChild(choix);
 
-    const url="http://localhost:5678/api/categories";
-    const reponse = await fetch(url);
-    const data = await reponse.json();
+    await fetch("http://localhost:5678/api/categories", {
+        method: "GET",
+        body: null,
+        headers: {
+            "Content-Type": "application/json",
+        },
+    })
+        .then(async (reponse) => {
+            if (!reponse.ok) {
+                console.log("Erreur de connexion fetch");
+                return reponse.json();
+            }
+            else return reponse.json();
+        })
+        .then(async (data) => {
+            for (tableauData of data) {
+                const choix = document.createElement("option");
+                choix.textContent = `${tableauData.name}`;
+                choix.setAttribute("value", `${tableauData.id}`);
+                selectionCategorie.appendChild(choix);
+            };
+        })
+        .catch(async (error) => {
+            console.error("Erreur : ", error);
+        })
 
-    for (tableauData of data){
-        const choix = document.createElement("option");
-        choix.textContent=`${tableauData.name}`;
-        choix.setAttribute("value",`${tableauData.id}`);
-        selectionCategorie.appendChild(choix);
-    };
+    const ligneHorizontaleSeparation2 = document.createElement("div");
+    ligneHorizontaleSeparation2.setAttribute("id", "ligneHorizontaleSeparation2");
 
-    const ligneHorizontaleSeparation2=document.createElement("div");
-    ligneHorizontaleSeparation2.setAttribute("id","ligneHorizontaleSeparation2");
-
-    const boutonValidation=document.createElement("bouton");
-    boutonValidation.setAttribute("id","boutonValidation");
+    const boutonValidation = document.createElement("bouton");
+    boutonValidation.setAttribute("id", "boutonValidation");
 
     conteneurActionsDuWrapeur.appendChild(conteneurBoutonNavigation);
     conteneurBoutonNavigation.appendChild(iconeRetourPageAnterieure);
@@ -339,11 +400,12 @@ async function creeWrappeurPage2(){
     blocBleuPourAfficherProjetAAjouter.appendChild(imageChematique);
     blocBleuPourAfficherProjetAAjouter.appendChild(boutonSelectionPhoto);
 
-    // Ici on cree une zone input file sur bouton,
-    // on le rend invisible, et au click on ouvre une fenetre de selection
+    // On cree une zone input file sur bouton et on le rend invisible.
+    // Au click on ouvre une fenetre de selection
     const fichierAEnvoyer = document.createElement("input");
-    fichierAEnvoyer.setAttribute("type","file");
-    fichierAEnvoyer.setAttribute("id","fichierAEnvoyer");
+    fichierAEnvoyer.setAttribute("type", "file");
+    fichierAEnvoyer.setAttribute("id", "fichierAEnvoyer");
+    fichierAEnvoyer.setAttribute("accept", ".jpg, .png");
     blocAjoutDeProjet.appendChild(fichierAEnvoyer);
 
 
@@ -357,208 +419,234 @@ async function creeWrappeurPage2(){
     blocAjoutDeProjet.appendChild(boutonValidation);
 
 
-    boutonSelectionPhoto.addEventListener("click", async ()=> {
+    boutonSelectionPhoto.addEventListener("click", async () => {
         boutonSelectionPhoto.removeAttribute(".class");
         fichierAEnvoyer.click();
     });
 
 
-    saisieTitre.addEventListener("change", async ()=> {
-        titre=`${saisieTitre.value}`;
-        conditions=await conditionsPourValiderNouveauProjet();
+    saisieTitre.addEventListener("keyup", async () => {
+        titre = `${saisieTitre.value}`;
+        conditions = await conditionsPourValiderNouveauProjet();
     });
 
 
-    fichierAEnvoyer.addEventListener("change", async (e)=> {
-        // Chemin dacces pour le fetch 
-        cheminProjet = `${fichierAEnvoyer.files[0].name}`;
+    fichierAEnvoyer.addEventListener("change", async (e) => {
+        // Chemin dacces pour le fetch
+        cheminProjet = fichierAEnvoyer.files[0];
 
-
-        
-        // Construction affichage image dans le wrappeur et pour la galerie
-        const fichier = e.target.files[0]
+        // Construction et affichage de la nouvelle image dans le wrappeur2
+        const fichier = e.target.files[0];
         urlTemporaire = URL.createObjectURL(fichier);
-                                    
+
+
         const parentNouvelleImage = document.getElementById("blocBleu");
-        parentNouvelleImage.innerHTML="";
+        parentNouvelleImage.innerHTML = "";
         const nouvelleImage = document.createElement("figure");
         parentNouvelleImage.appendChild(nouvelleImage);
         const definitionNouvelleImage = document.createElement("img");
-        definitionNouvelleImage.setAttribute("id","definitionNouvelleImage");
-        definitionNouvelleImage.setAttribute("src",urlTemporaire);
-        definitionNouvelleImage.setAttribute("alt","Nouvelle image a inserer");
-        definitionNouvelleImage.setAttribute("crossorigin","anonymous");
+        definitionNouvelleImage.setAttribute("id", "definitionNouvelleImage");
+        definitionNouvelleImage.setAttribute("src", urlTemporaire);
+        definitionNouvelleImage.setAttribute("alt", "Nouvelle image a inserer");
+        definitionNouvelleImage.setAttribute("crossorigin", "anonymous");
         nouvelleImage.appendChild(definitionNouvelleImage);
 
-        conditions=await conditionsPourValiderNouveauProjet();
+        conditions = await conditionsPourValiderNouveauProjet();
     });
 
-    selectionCategorie.addEventListener("change", async ()=> {
+    selectionCategorie.addEventListener("change", async () => {
         categorie = selectionCategorie.value;
-        if (categorie != 0){
-        // Construction charge utile
-        conditions=await conditionsPourValiderNouveauProjet();
-        }
+        conditions = await conditionsPourValiderNouveauProjet();
     });
 
+    // Fermeture wrappeur2 et retour a la page mode edition en cliquant sur licone "croix"
     iconeCroixFermeturePageEnCours.addEventListener("click", async () => {
-        modale2.remove();
+        modale.remove();
         await creeGalerie();
-        conditions=0;
     });
 
-    iconeRetourPageAnterieure.addEventListener("click", async ()=>{
-        modale2.remove();
-        await creeWrappeurPage1();
-        document.getElementById("boutonAjoutPhoto").addEventListener("click", async () => {
-            await creeWrappeurPage2();
-        });
-        conditions=0;
+    // Fermeture wrappeur2 et retour au wrappeur1 en cliquant sur la licone "retour"
+    iconeRetourPageAnterieure.addEventListener("click", async () => {
+        modale.remove();
+        await creeWrappeur1();
     });
 
-
-    
-    document.getElementById("boutonValidation").addEventListener("click", async () => {
-        if (conditions==1){
-            modale2.remove();
-            await creeGalerie();
-
-            const parentDeLaGallerie = document.querySelector(".gallery");
-            const nouvelleFigure = document.createElement('figure');
-            parentDeLaGallerie.appendChild(nouvelleFigure);
-            
-            const nouveauProjet = document.createElement("img");
-            nouveauProjet.setAttribute("src",`${urlTemporaire}`);
-            nouveauProjet.setAttribute("crossorigin","anonymous");
-            nouveauProjet.setAttribute("alt",`${saisieTitre.value}`);
-            nouvelleFigure.appendChild(nouveauProjet);
-
-            const legendeNouveauProjet=document.createElement("figcaption");
-            legendeNouveauProjet.textContent=`${saisieTitre.value}`;
-            nouvelleFigure.appendChild(legendeNouveauProjet);
+    // Fermeture wrappeur2 et retour au wrappeur1 en cliquant a lexterieur du wrappeur2
+    window.addEventListener("click", (e) => {
+        if (e.target == modale) {
+            modale.remove();
+            creeWrappeur1();
         }
+    });
+
+    document.getElementById("boutonValidation").addEventListener("click", async () => {
+        const formData = new FormData();
+        formData.append('image', cheminProjet);
+        formData.append('title', titre);
+        formData.append('category', categorie);
+        // console.log("title : " + formData.get("title"));
+
+        fetch("http://localhost:5678/api/works", {
+            method: "POST",
+            body: formData,
+            headers: {
+                "Authorization": "Bearer " + sessionStorage.getItem("token"),
+            },
+        })
+            .then(async (reponse) => {
+                if (!reponse.ok) {
+                    alert("Erreur dans l'ajout du projet");
+                    return reponse.json();
+                }
+            })
+            .then(async (data) => {
+                modale.remove();
+                const boutonPublication = document.getElementById("boutonPublication");
+                boutonPublication.classList.add("activationDuBoutonPublication");
+
+                boutonPublication.addEventListener("click", () => {
+                    creeGalerie(0);
+                    boutonPublication.classList.remove("activationDuBoutonPublication");
+                });
+            })
+            .catch((error) => {
+                console.error("Erreur de creation de projet : ", error);
+            });
     });
 };
 
 
 // Teste dans le modale2, si les 3 champs demandés pour lajout de projet sont bien fournis
-async function conditionsPourValiderNouveauProjet(){
-    const coloreDecoloreBoutonValidation=document.getElementById("boutonValidation");
+async function conditionsPourValiderNouveauProjet() {
+    const coloreDecoloreBoutonValidation = document.getElementById("boutonValidation");
 
-
-    if((selectionCategorie.value != 0) && (fichierAEnvoyer.value != "") && (saisieTitre.value != "")) {
+    if ((categorie != 0) && (fichierAEnvoyer.value != "") && (titre != "")) {
 
         coloreDecoloreBoutonValidation.classList.add("coloreMoiEnVert");
-        const blocAjoutDeProjet=document.getElementById("blocAjoutDeProjet");
-        const boutonValidation=document.getElementById("boutonValidation");
-        boutonValidation.setAttribute("href","#");
+        const blocAjoutDeProjet = document.getElementById("blocAjoutDeProjet");
+        const boutonValidation = document.getElementById("boutonValidation");
+        boutonValidation.setAttribute("href", "#");
         blocAjoutDeProjet.appendChild(boutonValidation);
-        return 1;
     }
-    else return 0;
+    else {
+        coloreDecoloreBoutonValidation.classList.remove("coloreMoiEnVert");
+        const blocAjoutDeProjet = document.getElementById("blocAjoutDeProjet");
+        const boutonValidation = document.getElementById("boutonValidation");
+        boutonValidation.removeAttribute("href", "#");
+        blocAjoutDeProjet.appendChild(boutonValidation);
+    }
 };
 
+
 // Affiche la page principale du site en mode edition pour larchitecte
-async function creeGalerieModeEditeur(){
+async function creePageArchitecteModeEditeur() {
+
+    // Reconstruction du bandeau noir dedition
+    const siteGlobal = document.getElementById('body');
+    const bandeauModeEditeur = document.createElement("div");
+    bandeauModeEditeur.setAttribute("id", "bandeauNoir");
+    bandeauModeEditeur.innerHTML =
+        `<i class="fa-regular fa-pen-to-square icone0"></i>
+    <p id="texteEdition">Mode édition</p>
+    <a href="#">
+        <input type="button" id="boutonPublication" value="publier les changements">
+    </a>`;
+    siteGlobal.insertBefore(bandeauModeEditeur, siteGlobal.firstChild);
+
+    const contenantLoginLogout = document.getElementById("loginLogout");
+    const lienLogin = document.getElementById("login");
+    lienLogin.textContent = "logout";
+    lienLogin.removeAttribute("class", "LoginGras");
 
 
-// Reconstruction du bandeau noir dedition
-const siteGlobal = document.getElementById('body');
-const bandeauModeEditeur = document.createElement("div");
-bandeauModeEditeur.setAttribute("id","bandeauNoir");
-bandeauModeEditeur.innerHTML =
-`<i class="fa-regular fa-pen-to-square icone0"></i>
-<p id="texteEdition">Mode édition</p>
-<a href="#">
-    <input type="button" id="boutonPublication" value="publier les changements">
-</a>`;
-siteGlobal.insertBefore(bandeauModeEditeur, siteGlobal.firstChild);
-
-const contenantLoginLogout=document.getElementById("loginLogout");
-const lienLogin = document.getElementById("login");
-lienLogin.textContent="logout";
-lienLogin.removeAttribute("class","LoginGras");
+    // Lien de modification photo de larchitecte
+    const introArchi = document.getElementById("photoArchi");
+    const contenantModifPhotoArchi = document.createElement("div")
+    contenantModifPhotoArchi.setAttribute("id", "contenantBoutonModifierPhotoArchi");
+    const iconeModifPhotoArchi = document.createElement("i");
+    iconeModifPhotoArchi.classList.add("fa-regular", "fa-pen-to-square", "icone1");
+    const lienModifPhotoArchi = document.createElement("a");
+    lienModifPhotoArchi.setAttribute("href", "#");
+    lienModifPhotoArchi.setAttribute("id", "modif1");
+    lienModifPhotoArchi.textContent = "modifier";
 
 
-const introArchi=document.getElementById("photoArchi");
-const contenantModifPhotoArchi=document.createElement("div")
-contenantModifPhotoArchi.setAttribute("id","contenantBoutonModifierPhotoArchi");
-
-const iconeModifPhotoArchi=document.createElement("i");
-iconeModifPhotoArchi.classList.add("fa-regular","fa-pen-to-square", "icone1");
-
-const lienModifPhotoArchi=document.createElement("a");
-lienModifPhotoArchi.setAttribute("href", "#");
-lienModifPhotoArchi.setAttribute("id","modif1");
-lienModifPhotoArchi.textContent="modifier";
-
-const conteneurTitreMesProjets=document.querySelector("#portfolio div");
-conteneurTitreMesProjets.setAttribute("id","nouvellesMargesconteneurTitreMesProjets");
+    // Lien de modification des projets de larchitecte
+    const conteneurTitreMesProjets = document.querySelector("#portfolio div");
+    conteneurTitreMesProjets.setAttribute("id", "nouvellesMargesconteneurTitreMesProjets");
+    const conteneurBoutonFiltre = document.querySelector(".conteneurBoutonFiltre");
+    conteneurBoutonFiltre.style.display = "none";
+    const iconeModifierProjets = document.createElement("i");
+    iconeModifierProjets.classList.add("fa-regular", "fa-pen-to-square", "icone2");
+    const lienModifierProjets = document.createElement("a");
+    lienModifierProjets.setAttribute("id", "lienModifierProjets");
+    lienModifierProjets.setAttribute("href", "#");
+    lienModifierProjets.textContent = "modifier";
 
 
-const conteneurBoutonFiltre=document.querySelector(".conteneurBoutonFiltre");
-conteneurBoutonFiltre.style.display="none";
+    // Lien de modification de lintroduction de larchitecte
+    const introductionArchitexte = document.getElementById("presentationArchitexte");
+    introductionArchitexte.setAttribute("id", "modifPresentation");
 
-const iconeModifierProjets=document.createElement("i");
-iconeModifierProjets.classList.add("fa-regular","fa-pen-to-square", "icone2");
-
-const lienModifierProjets=document.createElement("a");
-lienModifierProjets.setAttribute("id","lienModifierProjets");
-lienModifierProjets.setAttribute("href","#");
-lienModifierProjets.textContent="modifier";
-
-
-introArchi.appendChild(contenantModifPhotoArchi);
-contenantLoginLogout.appendChild(lienLogin);
-contenantModifPhotoArchi.appendChild(iconeModifPhotoArchi);
-contenantModifPhotoArchi.appendChild(lienModifPhotoArchi);
-conteneurTitreMesProjets.appendChild(iconeModifierProjets);
-conteneurTitreMesProjets.appendChild(lienModifierProjets);
+    const conteneurIntroductionArchi = document.createElement("div");
+    conteneurIntroductionArchi.setAttribute("id", "conteneurIntroductionArchi");
+    const iconeIntroductionArchi = document.createElement("i");
+    iconeIntroductionArchi.classList.add("fa-regular", "fa-pen-to-square", "icone3");
+    const lienIntroductionArchi = document.createElement("a");
+    lienIntroductionArchi.setAttribute("href", "#");
+    lienIntroductionArchi.textContent = "modifier";
 
 
-
-document.getElementById("modif1").addEventListener("click", () => {
-    alert('On vient dappuyer sur la modif1');
-});
-
-// On revient sur la page principale au click sur logout 
-lienLogin.addEventListener("click", () => {
-    sessionStorage.setItem('utilisateur', '');
-    sessionStorage.setItem('token', '');
-    window.location.href="../FrontEnd/index.html";
-    conditions=0;
-});
+    introArchi.appendChild(contenantModifPhotoArchi);
+    contenantLoginLogout.appendChild(lienLogin);
+    contenantModifPhotoArchi.appendChild(iconeModifPhotoArchi);
+    contenantModifPhotoArchi.appendChild(lienModifPhotoArchi);
+    conteneurTitreMesProjets.appendChild(iconeModifierProjets);
+    conteneurTitreMesProjets.appendChild(lienModifierProjets);
 
 
-// lienModifierProjets.addEventListener("click", () => {
-//     creeWrappeurPage1();
-// });
+    introductionArchitexte.insertBefore(conteneurIntroductionArchi, introductionArchitexte.firstChild);
+    conteneurIntroductionArchi.appendChild(iconeIntroductionArchi);
+    conteneurIntroductionArchi.appendChild(lienIntroductionArchi);
 
-// await creeGalerie();
+
+    // On revient sur la page principale au click sur logout 
+    lienLogin.addEventListener("click", () => {
+        sessionStorage.setItem('utilisateur', '');
+        sessionStorage.setItem('token', '');
+        window.location.href = "../FrontEnd/index.html";
+    });
+
+
+    lienModifierProjets.addEventListener("click", () => {
+        creeWrappeur1();
+    });
+    await creeGalerie();
 }
 
+
 // Affiche la page de connexion de larchitecte
-async function creeLeFormulaireLoginArchitecte(){
+async function creeLeFormulaireLoginArchitecte() {
 
-    return new Promise(async (resolve, reject) =>{
+    return new Promise(async (resolve, reject) => {
         // On cache la page principale 
-        document.getElementById("zonePrincipaleMain").style.display="none";
-        document.getElementById("footer").style.display="none";
+        document.getElementById("zonePrincipaleMain").style.display = "none";
+        document.getElementById("footer").style.display = "none";
 
-        const body=document.getElementById("body");
-        const lienLoginGras=document.getElementById("login");
+        const body = document.getElementById("body");
+        const lienLoginGras = document.getElementById("login");
 
-        lienLoginGras.setAttribute("class","LoginGras");
+        lienLoginGras.setAttribute("class", "LoginGras");
 
         const formulaireDeConnexionArchitecte = document.createElement("aside");
-        formulaireDeConnexionArchitecte.setAttribute("id","formulaireDeConnexionArchitecte");
+        formulaireDeConnexionArchitecte.setAttribute("id", "formulaireDeConnexionArchitecte");
 
         const titreLogin = document.createElement('h2');
         titreLogin.setAttribute('id', 'titreLoginH2');
 
-        const formulaire= document.createElement("form");
-        formulaire.setAttribute("name","formulaire");
-        formulaire.setAttribute("class","form");
+        const formulaire = document.createElement("form");
+        formulaire.setAttribute("name", "formulaire");
+        formulaire.setAttribute("class", "form");
 
         const labelEmail = document.createElement('label');
         labelEmail.setAttribute('for', 'email');
@@ -567,7 +655,7 @@ async function creeLeFormulaireLoginArchitecte(){
         const inputEmail = document.createElement('input');
         inputEmail.setAttribute('type', 'email');
         inputEmail.setAttribute('id', 'inputMail');
-        inputEmail.setAttribute("autocomplete","on");
+        inputEmail.setAttribute("autocomplete", "on");
 
         const labelMotDePasse = document.createElement('label');
         labelMotDePasse.setAttribute('for', 'password');
@@ -576,7 +664,7 @@ async function creeLeFormulaireLoginArchitecte(){
         const inputMotDePasse = document.createElement('input');
         inputMotDePasse.setAttribute('type', 'password');
         inputMotDePasse.setAttribute('id', 'inputMotDePasseLogIn');
-        inputMotDePasse.setAttribute("autocomplete","off");
+        inputMotDePasse.setAttribute("autocomplete", "off");
         titreLogin.innerHTML = `Log In</h2>`;
         labelEmail.innerHTML = `E-mail</label>`;
         inputEmail.innerHTML = `</input>`;
@@ -594,9 +682,9 @@ async function creeLeFormulaireLoginArchitecte(){
         motDePasseOublie.setAttribute('id', 'motDePasseOublie');
         motDePasseOublie.innerHTML = `Mot de passe oublié</a>`
 
-        const mentionsLegales= document.createElement("footer");
+        const mentionsLegales = document.createElement("footer");
         mentionsLegales.setAttribute("id", "footerFormulaireIdentification");
-        mentionsLegales.textContent="Mentions légales";
+        mentionsLegales.textContent = "Mentions légales";
 
         body.appendChild(formulaireDeConnexionArchitecte);
         formulaireDeConnexionArchitecte.appendChild(titreLogin);
@@ -612,69 +700,65 @@ async function creeLeFormulaireLoginArchitecte(){
         //Recuperation des identifiants tapés
         document.getElementById('boutonSeConnecterLogIn').addEventListener('click', async () => {
 
-            const chargeUtile = { 
-                email : "",
-                password : "" };
+            const chargeUtile = {
+                email: "",
+                password: ""
+            };
 
             chargeUtile.email = document.getElementById('inputMail').value;
             chargeUtile.password = document.getElementById('inputMotDePasseLogIn').value;
 
 
-            await fetch ("http://localhost:5678/api/users/login", {
-                method : "POST",
-                headers : {"content-type":"application/json"},
-                body : JSON.stringify(chargeUtile)
+            await fetch("http://localhost:5678/api/users/login", {
+                method: "POST",
+                headers: { "content-type": "application/json" },
+                body: JSON.stringify(chargeUtile)
             })
-            .then (async (reponse) => {
-                if (!reponse.ok){
-                    if ((reponse.status === 401) || (reponse.status === 404)) {
-                        alert("Erreur dans l'identifiant ou dans le mot de passe");
+                .then(async (reponse) => {
+                    if (!reponse.ok) {
+                        if ((reponse.status === 401) || (reponse.status === 404)) {
+                            alert("Erreur dans l'identifiant ou dans le mot de passe");
+                            return;
+                        };
+                    }
+                    else {
+                        return (await reponse.json());
                     };
-                }
-                else {
-                    return (await reponse.json());
-                };
-            })
-            .then (async (data) => {
-                sessionStorage.setItem('token', data.token);
-                document.getElementById("formulaireDeConnexionArchitecte").style.display="none";
-                document.getElementById("footerFormulaireIdentification").style.display="none";
-                document.getElementById("zonePrincipaleMain").style.display="block";
-                document.getElementById("footer").style.display="block";
+                })
+                .then(async (data) => {
+                    sessionStorage.setItem('token', data.token);
+                    document.getElementById("formulaireDeConnexionArchitecte").style.display = "none";
+                    document.getElementById("footerFormulaireIdentification").style.display = "none";
+                    document.getElementById("zonePrincipaleMain").style.display = "block";
+                    document.getElementById("footer").style.display = "block";
 
-                await creeGalerieModeEditeur();
-                resolve(1);
-            })
-            .catch(async (error) => { 
-                console.log("Message derreur : "+error.message);
-                resolve (0);
-            });
+                    await creePageArchitecteModeEditeur();
+                })
+                .catch(async (error) => {
+                    console.log("Message derreur : " + error.message);
+                    const asideLogin = document.getElementById("formulaireDeConnexionArchitecte");
+                    asideLogin.remove();
+                    creeLeFormulaireLoginArchitecte();
+                });
         });
     });
 }
 
 
-
 // On modifie la page principale en lui ajoutant des boutons et la galerie de projets
-document.addEventListener("DOMContentLoaded", () =>{
-    creeBoutons();
-    creeGalerie();
-});
-
+creeBoutons();
+creeGalerie();
 
 
 if (sessionStorage.getItem('token') == 'null') {
-    // Passage au formulaire de login de larchitecte en cliquant sur le bouton "login"
+    // Passage au formulaire dautentification de larchitecte
     document.getElementById("login").addEventListener("click", async () => {
         await creeLeFormulaireLoginArchitecte();
 
 
         // Passage au wrappeur1 qui permet dajouter ou de supprimer des projets
         lienModifierProjets.addEventListener("click", async () => {
-            await creeWrappeurPage1();
-
-
-
+            await creeWrappeur1();
         });
     });
 }
