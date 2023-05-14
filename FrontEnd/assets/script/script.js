@@ -132,15 +132,14 @@ async function creeGalerie(categorie = 0) {
 
 // Cree le wrappeur1 contenant tous les projets en miniatures, elle permet des suppressions de projets et des ajouts.
 async function creeWrappeur1() {
-    return new Promise(async (resolve, reject) => {
 
-        const siteGlobal = document.getElementById("body");
+    const siteGlobal = document.getElementById("body");
 
-        const modale = document.createElement("aside");
-        modale.setAttribute("id", "modale");
-        modale.setAttribute("class", "modale");
-        modale.innerHTML =
-            `<div class="wrappeur1">
+    const modale = document.createElement("aside");
+    modale.setAttribute("id", "modale");
+    modale.setAttribute("class", "modale");
+    modale.innerHTML =
+        `<div class="wrappeur1">
             <div id="conteneurActionsDuWrapeur">
                 <div id="conteneurCroix">
                     <i class="fa-solid fa-xmark"></i>
@@ -156,26 +155,25 @@ async function creeWrappeur1() {
                 </div>
             </div>
         </div>`;
-        siteGlobal.appendChild(modale);
+    siteGlobal.appendChild(modale);
 
 
-        //  Creation de la mini galerie dans la modale
-        await creeGalerie(-1).then(projetsFiltres);
-        await afficheGalerieWrappeur1(projetsFiltres);
+    //  Creation de la mini galerie dans la modale
+    await creeGalerie(-1).then(projetsFiltres);
+    await afficheGalerieWrappeur1(projetsFiltres);
 
-        // Fermeture modale par bouton croix
-        document.querySelector(".fa-xmark").addEventListener("click", async () => {
+    // Fermeture modale par bouton croix
+    document.querySelector(".fa-xmark").addEventListener("click", async () => {
+        modale.remove();
+        await creeGalerie();
+    });
+
+    // Fermeture modale en cliquant a lexterieur de la modale
+    window.addEventListener("click", async (e) => {
+        if (e.target == modale) {
             modale.remove();
             await creeGalerie();
-        });
-
-        // Fermeture modale en cliquant a lexterieur de la modale
-        window.addEventListener("click", async (e) => {
-            if (e.target == modale) {
-                modale.remove();
-                await creeGalerie();
-            }
-        });
+        }
     });
 };
 
