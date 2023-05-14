@@ -82,6 +82,7 @@ async function creeBoutons() {
 
 // creation de la gallerie de projets (Page principale, mode edition, et wrappeur1)
 async function creeGalerie(categorie = 0) {
+
     const parentDeLaGalerie = document.querySelector('div.gallery');
 
     await fetch("http://localhost:5678/api/works", {
@@ -92,7 +93,10 @@ async function creeGalerie(categorie = 0) {
         },
     })
         .then(async (reponse) => {
-            if (!reponse.ok) console.log("Erreur dacces aux donnees");
+            if (!reponse.ok) {
+                console.log("Erreur dacces aux donnees");
+                return reponse.json();
+            }
             return reponse.json();
         })
         .then(async (data) => {
@@ -118,6 +122,7 @@ async function creeGalerie(categorie = 0) {
             <figcaption id="titreImage">${projetsFiltres[i].title}</figcaption>`;
                 parentDeLaGalerie.appendChild(projet);
             }
+
         })
         .catch((error) => {
             console.error("Erreur dans lappel fetch : ", error);
@@ -486,10 +491,8 @@ async function creeWrappeur2() {
             },
         })
             .then(async (reponse) => {
-                if (!reponse.ok) {
-                    alert("Erreur dans l'ajout du projet");
-                    return reponse.json();
-                }
+                if (!reponse.ok) alert("Erreur dans l'ajout du projet");
+                return reponse.json();
             })
             .then(async (data) => {
                 modale.remove();
@@ -727,7 +730,7 @@ async function creeLeFormulaireLoginArchitecte() {
                     await creePageArchitecteModeEditeur();
                 })
                 .catch(async (error) => {
-                    console.log("Message derreur : " + error.message);
+                    console.error("Message derreur : " + error);
                     const asideLogin = document.getElementById("formulaireDeConnexionArchitecte");
                     asideLogin.remove();
                     creeLeFormulaireLoginArchitecte();
