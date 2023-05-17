@@ -1,3 +1,4 @@
+
 // Variables de la charge utile pour le fletch post
 let fichier = "";
 let titre = "";
@@ -245,21 +246,8 @@ async function afficheGalerieWrappeur1(projetsFiltres) {
 
     // Suppression complete de tous les projets
     document.getElementById("lienSuppressionGalerie").addEventListener("click", () => {
-        const gallerie = document.getElementById("conteneurMiniGalerie");
-        gallerie.style.display = "none";
-
-        const boutonPublication = document.getElementById("boutonPublication");
-        boutonPublication.classList.add("activationDuBoutonPublication");
-
-        boutonPublication.addEventListener("click", () => {
-            boutonPublication.classList.remove("activationDuBoutonPublication");
-
-            creeGalerie(-1).then(projetsFiltres);
-
-            for (i = 0; i < projetsFiltres.length; i++) {
-                supprimeProjetUnitaire(projetsFiltres[i].id);
-            }
-            creeGalerie(0);
+        document.querySelectorAll(".cubeNoirPoubelle").forEach(cubeNoir => {
+            supprimeProjetUnitaire(cubeNoir.getAttribute("valeur"));
         });
     });
 
@@ -284,12 +272,8 @@ function supprimeProjetUnitaire(id) {
         .then(async (reponse) => {
             if (!reponse.ok) { alert("Erreur lors de la suppression"); return reponse.json(); }
             else {
-                // Ici on teste lexistance de la modale. Si Elle existe, cest quon est dans la situation dune
-                // suppression unique. Sinon, on est dans le cas dune suppression complete.
-                if (typeof modale !== "undefined") {
-                    modale.remove();
-                    await creeWrappeur1();
-                }
+                modale.remove();
+                await creeWrappeur1();
             };
         })
         .catch((error) => {
@@ -437,8 +421,6 @@ async function creeWrappeur2() {
 
 
     fichierAEnvoyer.addEventListener("change", async (e) => {
-        let urlTemporaire = "";
-
         // Chemin dacces pour le fetch
         cheminProjet = fichierAEnvoyer.files[0];
 
