@@ -41,11 +41,12 @@ async function creeBoutons() {
         headers: {
             "Content-Type": "application/json",
         },
-    })
+    }) // Promesse1
         .then(async (reponse) => {
             if (!reponse.ok) alert("Erreur de connexion");
             return reponse.json();
         })
+        // Promesse2
         .then(async (data) => {
             for (valeursDeData of data) {
                 const boutonX = document.createElement("input");
@@ -282,9 +283,10 @@ function supprimeProjetUnitaire(id) {
 };
 
 
-// Cree le wrappeur2 qui permet dajouter un projet
+// Cree le wrappeur2 (en position fixed) qui permet dajouter un projet
 async function creeWrappeur2() {
     let cheminProjet = {};
+    let conditions = 0;
 
     const body = document.querySelector("body");
     document.getElementById("modale").remove();
@@ -296,24 +298,20 @@ async function creeWrappeur2() {
     const wrappeur2 = document.createElement("div");
     wrappeur2.setAttribute("class", "wrappeur2");
     modale.appendChild(wrappeur2);
-
-
     const conteneurActionsDuWrapeur = document.createElement("div");
     wrappeur2.appendChild(conteneurActionsDuWrapeur);
-
     conteneurActionsDuWrapeur.setAttribute("class", "conteneurActionsDuWrapeurPage2");
     const conteneurBoutonNavigation = document.createElement("nav");
     conteneurBoutonNavigation.setAttribute("id", "nav");
-
     const iconeRetourPageAnterieure = document.createElement("i");
     iconeRetourPageAnterieure.classList.add("fa-solid", "fa-arrow-left");
     const iconeCroixFermeturePageEnCours = document.createElement("i");
     iconeCroixFermeturePageEnCours.classList.add("fa-solid", "fa-xmark");
 
+    // Selection du fichier image a ajouter
     const titreAjoutPhoto = document.createElement("h3");
     titreAjoutPhoto.setAttribute("id", "titreAjoutPhoto");
     titreAjoutPhoto.textContent = "Ajout photo";
-
     const blocBleuPourAfficherProjetAAjouter = document.createElement("div");
     blocBleuPourAfficherProjetAAjouter.setAttribute("id", "blocBleu");
 
@@ -334,17 +332,17 @@ async function creeWrappeur2() {
     texteTitre.textContent = "Titre";
     texteTitre.setAttribute("id", "texteTitre");
 
+    // Saisie du titre
     const saisieTitre = document.createElement("input");
     saisieTitre.setAttribute("id", "saisieTitre");
-
     const texteCategorie = document.createElement("label");
     texteCategorie.textContent = "Catégorie";
     texteCategorie.setAttribute("id", "texteCategorie");
 
+    // Selection de la categorie dans une input type select (menu deroulant)
     const selectionCategorie = document.createElement("select");
     selectionCategorie.setAttribute("id", "selectionCategorie");
 
-    // Selection de la categorie dans une input type select
     const choix = document.createElement("option");
     choix.setAttribute("value", 0);
     choix.textContent = "";
@@ -408,12 +406,12 @@ async function creeWrappeur2() {
     blocAjoutDeProjet.appendChild(boutonValidation);
 
 
+    // Declenchement de linput file
     boutonSelectionPhoto.addEventListener("click", async () => {
-        boutonSelectionPhoto.removeAttribute(".class");
         fichierAEnvoyer.click();
     });
 
-
+    // Declenchement de linput pour de la saisie texte
     saisieTitre.addEventListener("keyup", async () => {
         titre = `${saisieTitre.value}`;
         conditions = await conditionsPourValiderNouveauProjet();
@@ -421,13 +419,12 @@ async function creeWrappeur2() {
 
 
     fichierAEnvoyer.addEventListener("change", async (e) => {
-        // Chemin dacces pour le fetch
+        // Chemin dacces relatif pour le fetch
         cheminProjet = fichierAEnvoyer.files[0];
 
-        // Construction et affichage de la nouvelle image dans le wrappeur2
+        // Construction du chemin dacces absolue, et affichage de la nouvelle image dans le wrappeur2
         const fichier = e.target.files[0];
         urlTemporaire = URL.createObjectURL(fichier);
-
 
         const parentNouvelleImage = document.getElementById("blocBleu");
         parentNouvelleImage.innerHTML = "";
@@ -443,6 +440,7 @@ async function creeWrappeur2() {
         conditions = await conditionsPourValiderNouveauProjet();
     });
 
+    // Declenchement de linput option (menu deroulant)
     selectionCategorie.addEventListener("change", async () => {
         categorie = selectionCategorie.value;
         conditions = await conditionsPourValiderNouveauProjet();
@@ -514,6 +512,7 @@ async function conditionsPourValiderNouveauProjet() {
         const boutonValidation = document.getElementById("boutonValidation");
         boutonValidation.setAttribute("href", "#");
         blocAjoutDeProjet.appendChild(boutonValidation);
+        conditions = 0;
     }
     else {
         coloreDecoloreBoutonValidation.classList.remove("coloreMoiEnVert");
@@ -527,6 +526,7 @@ async function conditionsPourValiderNouveauProjet() {
 
 // Affiche la page principale du site en mode edition pour larchitecte
 async function creePageArchitecteModeEditeur() {
+
 
     // Reconstruction du bandeau noir dedition
     const siteGlobal = document.getElementById('body');
@@ -601,7 +601,7 @@ async function creePageArchitecteModeEditeur() {
     lienLogin.addEventListener("click", () => {
         sessionStorage.setItem('utilisateur', '');
         sessionStorage.setItem('token', '');
-        window.location.href = "../FrontEnd/index.html";
+        window.location.href = "index.html";
     });
 
 
@@ -633,6 +633,7 @@ async function creeLeFormulaireLoginArchitecte() {
 
         const formulaire = document.createElement("form");
         formulaire.setAttribute("name", "formulaire");
+        formulaire.setAttribute("id", "formulaire");
         formulaire.setAttribute("class", "form");
 
         const labelEmail = document.createElement('label');
@@ -684,9 +685,61 @@ async function creeLeFormulaireLoginArchitecte() {
         formulaire.appendChild(motDePasseOublie);
         body.appendChild(mentionsLegales);
 
+        const boutonContact = document.getElementById("boutonContact");
+        const boutonProjets = document.getElementById("boutonProjets");
+
+        const valeurEmail = document.getElementById("inputMail");
+        const valeurMDP = document.getElementById("inputMotDePasseLogIn");
+
+
+        // On teste lexistance dun message derreur didentification, on le supprime si on clique dans un champ de saisie "email"
+        valeurEmail.addEventListener("click", () => {
+            if (document.getElementById("erreurMDP") != null) document.getElementById("erreurMDP").remove();
+        })
+
+        // On teste lexistance dun message derreur didentification, on le supprime si on clique dans un champ de saisie "mot de passe"
+        valeurMDP.addEventListener("click", () => {
+            if (document.getElementById("erreurMDP") != null) document.getElementById("erreurMDP").remove();
+        })
+
+
+        // Si click sur bouton contact, on fait revenir a la page dacceuil sur la section "contact"
+        const afficheContact = () => {
+            if (document.getElementById("formulaireDeConnexionArchitecte") != null) {
+                document.getElementById("formulaireDeConnexionArchitecte").remove();
+                document.getElementById("footerFormulaireIdentification").remove();
+            }
+            boutonContact.removeEventListener("click", afficheContact);
+            boutonProjets.removeEventListener("click", afficheProjets);
+
+            document.getElementById("zonePrincipaleMain").style.display = "block";
+            document.getElementById("footer").style.display = "block";
+
+            window.location.href = "index.html#contact";
+        };
+
+
+        // Si click sur le bouton projets, on fait revenir a la page dacceuil sur la section "projets"
+        const afficheProjets = () => {
+            if (document.getElementById("formulaireDeConnexionArchitecte") != null) {
+                document.getElementById("formulaireDeConnexionArchitecte").remove();
+                document.getElementById("footerFormulaireIdentification").remove();
+            }
+            boutonProjets.removeEventListener("click", afficheProjets);
+            boutonContact.removeEventListener("click", afficheContact);
+
+            document.getElementById("zonePrincipaleMain").style.display = "block";
+            document.getElementById("footer").style.display = "block";
+
+            window.location.href = "index.html#projets";
+        };
+
+        boutonContact.addEventListener("click", afficheContact);
+        boutonProjets.addEventListener("click", afficheProjets);
+
+
         //Recuperation des identifiants tapés
         document.getElementById('boutonSeConnecterLogIn').addEventListener('click', async () => {
-
             const chargeUtile = {
                 email: "",
                 password: ""
@@ -704,7 +757,6 @@ async function creeLeFormulaireLoginArchitecte() {
                 .then(async (reponse) => {
                     if (!reponse.ok) {
                         if ((reponse.status === 401) || (reponse.status === 404)) {
-                            alert("Erreur dans l'identifiant ou dans le mot de passe");
                             return;
                         };
                     }
@@ -720,12 +772,22 @@ async function creeLeFormulaireLoginArchitecte() {
                     document.getElementById("footer").style.display = "block";
 
                     await creePageArchitecteModeEditeur();
+
+                    // Suppression decouteurs superflus
+                    boutonProjets.removeEventListener("click", afficheProjets);
+                    boutonContact.removeEventListener("click", afficheContact);
                 })
                 .catch(async (error) => {
-                    console.error("Message derreur : " + error);
                     const asideLogin = document.getElementById("formulaireDeConnexionArchitecte");
                     asideLogin.remove();
                     creeLeFormulaireLoginArchitecte();
+                    document.querySelector("footer#footerFormulaireIdentification").remove();
+
+                    const messageErreur = document.getElementById("formulaireDeConnexionArchitecte");
+                    errMotDePasse = document.createElement("p");
+                    errMotDePasse.setAttribute("id", "erreurMDP");
+                    errMotDePasse.textContent = "Erreur d'E-mail ou de mot de passe";
+                    messageErreur.insertBefore(errMotDePasse, messageErreur.firstChild);
                 });
         });
     });
