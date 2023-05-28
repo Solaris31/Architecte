@@ -168,7 +168,7 @@ h1 {
   color: #b1663c;
 }
 
-h1 > span {
+h1>span {
   font-family: "Work Sans";
   font-size: 10px;
   letter-spacing: 0.1em;
@@ -240,7 +240,7 @@ a:hover {
   margin-bottom: 0.5em;
 }
 
-#presentationArchitexte{
+#presentationArchitexte {
   margin-top: 70px;
 }
 
@@ -261,11 +261,11 @@ a:hover {
   position: relative;
 }
 
-input[type="radio"]:hover + label {
+input[type="radio"]:hover+label {
   cursor: pointer;
 }
 
-input[type="radio"] + label {
+input[type="radio"]+label {
   border-radius: 60px;
   border: 1px solid #1d6154;
   color: #1d6154;
@@ -281,7 +281,7 @@ input[type="radio"] + label {
   text-align: center;
 }
 
-input[type="radio"]:checked + label {
+input[type="radio"]:checked+label {
   border-radius: 60px;
   border: 1px solid #1d6154;
   color: white;
@@ -357,7 +357,7 @@ input[type="radio"] {
   margin: auto;
 }
 
-#contact > * {
+#contact>* {
   text-align: center;
 }
 
@@ -464,6 +464,18 @@ footer nav ul {
   outline: none;
 }
 
+#erreurMDP {
+  color: red;
+  font-family: "Work Sans";
+  font-style: normal;
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 19px;
+  text-align: center;
+  margin-bottom: -19px;
+  text-decoration: none;
+}
+
 #inputMail {
   margin-bottom: 30px;
 }
@@ -540,10 +552,12 @@ input[value="Envoyer"]:hover,
   align-items: center;
   justify-content: center;
 }
+
 #photoArchi {
   display: flex;
   flex-direction: column;
 }
+
 #lienModifPhotoArchi {
   font-family: "Work Sans";
   font-style: normal;
@@ -552,6 +566,7 @@ input[value="Envoyer"]:hover,
   line-height: 16px;
   color: #000000;
 }
+
 #contenantBoutonModifierPhotoArchi {
   margin: 16px 0 58px 0;
   display: flex;
@@ -617,11 +632,12 @@ input[value="Envoyer"]:hover,
   align-items: center;
 }
 
-.icone1, .icone3{
+.icone1,
+.icone3 {
   padding-right: 6px;
 }
 
-#conteneurIntroductionArchi{
+#conteneurIntroductionArchi {
   margin-bottom: 19px;
 }
 
@@ -664,8 +680,8 @@ input[value="Envoyer"]:hover,
   flex-direction: row;
 }
 
-#modifPresentation{
-  margin-top:30px !important;
+#modifPresentation {
+  margin-top: 30px !important;
 }
 
 /* Modale page1 *********************************************** */
